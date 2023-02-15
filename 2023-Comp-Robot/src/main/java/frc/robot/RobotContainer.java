@@ -14,6 +14,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.ArmCommands.*;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 
 /**
@@ -27,6 +28,7 @@ public class RobotContainer {
   //Subsystems
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   //Drive Commands
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem);
@@ -43,6 +45,7 @@ public class RobotContainer {
 
   //Upper Arm Commands
   private final UpperArmCommand upperArmCommand = new UpperArmCommand(armSubsystem);
+
 
 
   //Joysticks
