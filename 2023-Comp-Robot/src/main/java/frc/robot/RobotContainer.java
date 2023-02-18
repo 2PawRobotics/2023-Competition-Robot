@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.ArmCommands.*;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.commands.LEDCommand;
+import frc.robot.commands.TurretCommands.*;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 
@@ -27,59 +29,46 @@ public class RobotContainer {
   
   //Subsystems
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-  private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  private final TurretSubsystem armSubsystem = new TurretSubsystem();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   //Drive Commands
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem);
 
-  //Claw Commands
-  private final ClawOpenCommand clawOpenCommand = new ClawOpenCommand(armSubsystem);
-  private final ClawCloseCommand clawCloseCommand = new ClawCloseCommand(armSubsystem);
-
-  //Turret Commands
+  //Arm Command
+  //private final UpperArmCommand upperArmCommand = new UpperArmCommand(armSubsystem);
   private final TurretCommand turretCommand = new TurretCommand(armSubsystem);
+  private final LimelightCenterCommand limelightCenterCommand = new LimelightCenterCommand(armSubsystem);
 
-  //Lower Arm Commands
-  private final LowerArmCommand lowerArmCommand = new LowerArmCommand(armSubsystem);
+  //LED Test Command
+  private final LEDCommand ledCommand = new LEDCommand(ledSubsystem);
 
-  //Upper Arm Commands
-  private final UpperArmCommand upperArmCommand = new UpperArmCommand(armSubsystem);
-
-
+  //Gyro Commands
+  private final BalanceCommand balanceCommand = new BalanceCommand(driveSubsystem);
 
   //Joysticks
   public static XboxController XCont = new XboxController(0);
   public static Joystick rightJoy = new Joystick(1);
-  //public static Joystick rightJoy = new Joystick(2);
+  public static Joystick leftJoy = new Joystick(2);
 
   public RobotContainer() {
     
     CommandScheduler.getInstance().setDefaultCommand(driveSubsystem, driveCommand);
-    //CommandScheduler.getInstance().setDefaultCommand(armSubsystem, turretCommand);
-    //CommandScheduler.getInstance().setDefaultCommand(armSubsystem, lowerArmCommand);
-    CommandScheduler.getInstance().setDefaultCommand(armSubsystem, upperArmCommand);
+    //CommandScheduler.getInstance().setDefaultCommand(armSubsystem, upperArmCommand);
+    CommandScheduler.getInstance().setDefaultCommand(ledSubsystem, ledCommand);
+    CommandScheduler.getInstance().setDefaultCommand(armSubsystem, turretCommand);
 
     configureBindings();
   }
 
   private void configureBindings() {
 
-    //Claw Commands
-    /*JoystickButton clawCloseButton = new JoystickButton(leftJoy, 1);
-    clawCloseButton.onTrue(clawCloseCommand);
-    JoystickButton clawOpenButton = new JoystickButton(leftJoy, 2);
-    clawOpenButton.onTrue(clawOpenCommand);*/
+    JoystickButton balanceButton = new JoystickButton(XCont, 2);
+    balanceButton.whileTrue(balanceCommand);
 
-    //Turret Commands
-    
+    JoystickButton limelightCenterButton = new JoystickButton(leftJoy, 3);
+    limelightCenterButton.whileTrue(limelightCenterCommand);
 
-    //Lower Arm Commands
-
-
-    //Upper Arm Commands
-
-  
   }
 
   /**

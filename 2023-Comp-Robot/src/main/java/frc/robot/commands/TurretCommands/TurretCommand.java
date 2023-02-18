@@ -4,15 +4,15 @@
 
 package frc.robot.commands.ArmCommands;
 
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ClawCloseCommand extends CommandBase {
+public class TurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final TurretSubsystem armSubsystem;
 
-  public ClawCloseCommand(ArmSubsystem subsystem) {
+  public TurretCommand(TurretSubsystem subsystem) {
     armSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -22,7 +22,7 @@ public class ClawCloseCommand extends CommandBase {
   @Override
   public void initialize() {
 
-
+    armSubsystem.TurretInit();
 
   }
 
@@ -30,7 +30,7 @@ public class ClawCloseCommand extends CommandBase {
   @Override
   public void execute() {
 
-    armSubsystem.ClowClose();
+    armSubsystem.TurretTeleop();
   
   }
 

@@ -2,18 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ArmCommands;
+package frc.robot.commands;
 
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ClawOpenCommand extends CommandBase {
+public class BalanceCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final DriveSubsystem driveSubsystem;
 
-  public ClawOpenCommand(ArmSubsystem subsystem) {
-    armSubsystem = subsystem;
+  public BalanceCommand(DriveSubsystem subsystem) {
+    driveSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -22,15 +22,13 @@ public class ClawOpenCommand extends CommandBase {
   @Override
   public void initialize() {
 
-
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    armSubsystem.ClawOpen();
+    driveSubsystem.Balance();
   
   }
 

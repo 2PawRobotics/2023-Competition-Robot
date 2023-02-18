@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -33,9 +35,10 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    Shuffleboard.getTab("LimeLight").add("Auton Path Test", Constants.sendChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+    Shuffleboard.getTab("Auton").add("Auton Path Test", Constants.sendChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     Constants.sendChooser.setDefaultOption("Default Auto", Constants.defaultAuto);
     Constants.sendChooser.addOption("My Auto", Constants.customAuto);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("").setNumber(0);
   }
 
   /**

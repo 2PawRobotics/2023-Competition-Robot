@@ -4,16 +4,16 @@
 
 package frc.robot.commands.ArmCommands;
 
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class UpperArmCommand extends CommandBase {
+public class LEDCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final LEDSubsystem ledSubsystem;
 
-  public UpperArmCommand(ArmSubsystem subsystem) {
-    armSubsystem = subsystem;
+  public LEDCommand(LEDSubsystem subsystem) {
+    ledSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -22,15 +22,13 @@ public class UpperArmCommand extends CommandBase {
   @Override
   public void initialize() {
 
-    armSubsystem.UpperArmInit();
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    armSubsystem.UpperArmTeleop();
+    ledSubsystem.LEDTeleop();
   
   }
 
