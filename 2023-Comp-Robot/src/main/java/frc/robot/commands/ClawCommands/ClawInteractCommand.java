@@ -1,15 +1,19 @@
-package frc.robot.commands.TurretCommands;
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
-import frc.robot.subsystems.TurretSubsystem;
+package frc.robot.commands.ClawCommands;
+
+import frc.robot.subsystems.ClawSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class LimelightCenterCommand extends CommandBase {
+public class ClawInteractCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final TurretSubsystem armSubsystem;
+  private final ClawSubsystem clawSubsystem;
 
-  public LimelightCenterCommand(TurretSubsystem subsystem) {
-    armSubsystem = subsystem;
+  public ClawInteractCommand(ClawSubsystem subsystem) {
+    clawSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -24,7 +28,7 @@ public class LimelightCenterCommand extends CommandBase {
   @Override
   public void execute() {
 
-    armSubsystem.CenterLimelight();
+    clawSubsystem.ClawInteract();
   
   }
 
@@ -38,3 +42,4 @@ public class LimelightCenterCommand extends CommandBase {
     return false;
   }
 }
+

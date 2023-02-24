@@ -4,13 +4,6 @@
 
 package frc.robot.subsystems;
 
-import javax.lang.model.util.ElementScanner14;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -23,61 +16,54 @@ import frc.robot.RobotContainer;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    private static WPI_TalonFX lowMotor = new WPI_TalonFX(6, "rio");
-    private final CANSparkMax upMotor  = new CANSparkMax(5, MotorType.kBrushed);
+    public final static CANSparkMax lowMotor  = new CANSparkMax(6, MotorType.kBrushed);
+    public final static CANSparkMax upMotor  = new CANSparkMax(7, MotorType.kBrushed);
 
-    public static Encoder upEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k2X);
+    public static Encoder upEncoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
+    public static Encoder lowEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k2X);
 
     SlewRateLimiter turnFilter = new SlewRateLimiter(2);
 
-    double lowDistPerTic = 1/((2048*225)/360);
-    double upDistPerTic = 1/((1024*100)/360);
+    static double lowDistPerTic = 1/((1024*100)/360);
+    static double upDistPerTic = 1/((1024*100)/360);
 
     boolean armStop;
     boolean lengthStop;
     boolean heightStop;
     double lowMotorStop = 59.5;
 
-    double O1;
-    double O2;
+    static double O1;
+    static double O2;
 
-    double ExtendOne;
-    double ExtendTwo;
-    double PivotToEdge = 14;
-    double ExtendedLength;
+    static double ExtendOne;
+    static double ExtendTwo;
+    static double PivotToEdge = 14;
+    static double ExtendedLength;
 
-    double Extend1;
-    double Extend2;
-    double BottomToPivot = 8.95;
-    double ExtendedHeight;
+    static double Extend1;
+    static double Extend2;
+    static double BottomToPivot = 8.95;
+    static double ExtendedHeight;
 
     public void ArmInit() {
 
-        lowMotor.set(ControlMode.PercentOutput, 0);
-        lowMotor.configFactoryDefault();
-        lowMotor.setNeutralMode(NeutralMode.Brake);
         lowMotor.setInverted(true);
-        TalonFXConfiguration configs = new TalonFXConfiguration();
-			
-	    configs.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
-			
-	    lowMotor.configAllSettings(configs);
-        lowMotor.setSelectedSensorPosition(0);
-
+		
+        lowEncoder.setDistancePerPulse(Constants.encPulse);
         upEncoder.setDistancePerPulse(Constants.encPulse);
 
     }
     public void ArmTeleop() {
 
-        O1 = lowMotor.getSelectedSensorPosition()*lowDistPerTic;
+        O1 = lowEncoder.getDistance()*lowDistPerTic;
         O2 = upEncoder.getDistance()*upDistPerTic;
 
         ExtendOne = 40.62*Math.cos(O1);
-        ExtendTwo = 39.14*Math.cos(O1+O2);
-        double ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
 
         Extend1 = 40.62*Math.sin(O1);
-        Extend2 = 39.14*Math.sin(O2);
+        Extend2 = 39.25*Math.sin(O2);
         ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
 
         double rotateLow = RobotContainer.XCont2.getLeftY();
@@ -175,9 +161,26 @@ public class ArmSubsystem extends SubsystemBase {
         }
         if (O2>178.5)
         {
-            lowMotor.set(-.01);
+            upMotor.set(-.01);
         }
         else if (O2<177.5)
+        {
+            upMotor.set(.01);
+        }
+        else
+        {
+            upMotor.set(0);
+        }
+
+    }
+
+    public void ShelfPosition(){
+
+        if (O1>10.5)
+        {
+            lowMotor.set(-.01);
+        }
+        else if (O1<9.5)
         {
             lowMotor.set(.01);
         }
@@ -185,6 +188,83 @@ public class ArmSubsystem extends SubsystemBase {
         {
             lowMotor.set(0);
         }
+        if (O2>90.5)
+        {
+            upMotor.set(-.01);
+        }
+        else if (O2<89.5)
+        {
+            upMotor.set(.01);
+        }
+        else
+        {
+            upMotor.set(0);
+        }
 
+    }
+    public void ScoreCube(){
+
+        O1 = lowEncoder.getDistance()*lowDistPerTic;
+        O2 = upEncoder.getDistance()*upDistPerTic;
+        Extend1 = 40.62*Math.sin(O1);
+        Extend2 = 39.25*Math.sin(O2);
+        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
+
+        double goalHeight = 0;
+
+        if (TurretSubsystem.HighTarget == true)
+        {
+            goalHeight = 48;
+        }
+        else if (TurretSubsystem.LowTarget == true)
+        {
+            goalHeight = 36;
+        }
+
+        if (ExtendedHeight < goalHeight)
+        {
+            upMotor.set(.1);
+            lowMotor.set(0);
+        }
+    }
+
+    public static void ScoreCone(){
+
+        O1 = lowEncoder.getDistance()*lowDistPerTic;
+        O2 = upEncoder.getDistance()*upDistPerTic;
+
+        ExtendOne = 40.62*Math.cos(O1);
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+
+        Extend1 = 40.62*Math.sin(O1);
+        Extend2 = 39.25*Math.sin(O2);
+        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
+        double goalHeight = 0;
+        if (TurretSubsystem.HighTarget == true)
+        {
+            goalHeight = 50;
+        }
+        else if (TurretSubsystem.LowTarget == true)
+        {
+            goalHeight = 36;
+        }
+
+        if (ExtendedHeight < goalHeight)
+        {
+            upMotor.set(.1);
+            lowMotor.set(0);
+        }
+        else if (ExtendedLength < Constants.distanceFromLimelightToGoalInches)
+        {
+            upMotor.set(0);
+            lowMotor.set(.1);
+        }
+        else 
+        {
+            Constants.havePlacedCone = true;
+            upMotor.set(0);
+            lowMotor.set(0);
+        }
     }
 }

@@ -22,7 +22,7 @@ public final class Constants {
 
   /* Testing Constants */
 
-  public static final double testSpeed = .5;
+  public static final double armSpeed = .1;
 
   /* Encoder Parameters */
 
@@ -39,5 +39,11 @@ public final class Constants {
   public static final String defaultAuto = "Default";
   public static final String customAuto = "My Auto";
   final static SendableChooser<String> sendChooser = new SendableChooser<>();
+
+  /* Limelight Stuff */
+  public static double distanceFromLimelightToGoalInches;
+  public static boolean havePlacedCone = false;
+
+  public static double goalHeightInches = 0;
 
 }

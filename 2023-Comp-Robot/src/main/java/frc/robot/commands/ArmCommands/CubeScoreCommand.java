@@ -1,14 +1,14 @@
-package frc.robot.commands.TurretCommands;
+package frc.robot.commands.ArmCommands;
 
-import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class LimelightCenterCommand extends CommandBase {
+public class CubeScoreCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final TurretSubsystem armSubsystem;
+  private final ArmSubsystem armSubsystem;
 
-  public LimelightCenterCommand(TurretSubsystem subsystem) {
+  public CubeScoreCommand(ArmSubsystem subsystem) {
     armSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -24,7 +24,7 @@ public class LimelightCenterCommand extends CommandBase {
   @Override
   public void execute() {
 
-    armSubsystem.CenterLimelight();
+    armSubsystem.ScoreCube();
   
   }
 

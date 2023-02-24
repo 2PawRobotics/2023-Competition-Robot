@@ -17,9 +17,6 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.networktables.*;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -33,7 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
   public static WPI_TalonFX rightBack = new WPI_TalonFX(1, "rio");
 
   // Gyro
-  AHRS gyro = new AHRS(I2C.Port.kMXP);
+  //AHRS gyro = new AHRS(I2C.Port.kMXP);
 
   // Motor Values 
 	final TalonFXInvertType kInvertType = TalonFXInvertType.Clockwise; 
@@ -43,19 +40,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Drive Encoder Units
   final double kUnitsPerRevolution = (Math.PI*6)/8.45; 
-
-  // Stuff for limeLight
-
-  private boolean LowTarget = false;
-  private boolean HighTarget = false;
-
-  public ShuffleboardTab tab = Shuffleboard.getTab("Vision");
-
-  public GenericEntry limeLightXEntry = tab.add("LimeLight tx", 0).getEntry();
-  public GenericEntry limeLightYEntry = tab.add("LimeLight ty", 0).getEntry();
-  public GenericEntry limeLightAEntry = tab.add("LimeLight ta", 0).getEntry();
-
-  public boolean enableLimelight = false;
   
 
   public void DriveTeleop() {
@@ -67,29 +51,12 @@ public class DriveSubsystem extends SubsystemBase {
     forward = driveFilter.calculate(forward);
     turn = turnFilter.calculate(turn);
     
-    if (RobotContainer.XCont.getAButtonPressed() == true){
-      enableLimelight = true;
-    }
-    if (RobotContainer.XCont.getLeftBumperPressed() == true){
-      HighTarget = false;
-      LowTarget = true;
-      NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
-    }
-    if (RobotContainer.XCont.getRightBumperPressed() == true){
-      LowTarget = false;
-      HighTarget = true;
-      NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1 );
-    } 
-    if (enableLimelight == true){
-      Limelight_Tracking();
-    }else{
-      leftFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
-        leftBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
-        rightFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-        rightBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-
-    } 
+    leftFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
+    leftBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
+    rightFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
+    rightBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
     //System.out.println("Gyro angle: "+gyro.getYaw());
+
   }
 
   public void DriveInitialize(){
@@ -152,7 +119,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void Balance(){
 
-    double roll = gyro.getRoll();
+    /*double roll = gyro.getRoll();
     if (roll > 5){
       leftFront.set(-.1);
       leftBack.set(-.1);
@@ -168,47 +135,12 @@ public class DriveSubsystem extends SubsystemBase {
       leftBack.set(0);
       rightFront.set(0);
       rightBack.set(0);
-    }
+    }*/
     
   }
 
   public void DriveAuton(){
       
   }
-  public void Limelight_Tracking()
-  {
-    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
-    double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-    double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
-
-    double LimelightX = tx;
-    double LimelightY = ty;
-    double LimelightA = ta;
-    limeLightXEntry.setDouble(LimelightX);
-    limeLightYEntry.setDouble(LimelightY);
-    limeLightAEntry.setDouble(LimelightA);
-
-    double targetOffsetAngle_Vertical = ty;
-    double limelightMountAngleDegrees = 19.875;
-    double limelightLensHeightInches = 11;
-    double goalHeightInches = 0;
-    if (HighTarget == true){
-      goalHeightInches = 43.9375;
-    }
-    else if (LowTarget == true){
-      goalHeightInches = 24.00;
-    }
-   
-    double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-    double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
-
-    double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians);
-
-    if (RobotContainer.XCont.getXButtonPressed() == true){
-      enableLimelight = false;
-      System.out.println("Distance to goal: "+distanceFromLimelightToGoalInches);
-    }
-  }
-}
- 
+  
+} 
