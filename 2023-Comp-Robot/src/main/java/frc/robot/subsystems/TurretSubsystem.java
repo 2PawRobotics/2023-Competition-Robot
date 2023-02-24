@@ -18,8 +18,8 @@ public class TurretSubsystem extends SubsystemBase {
   
   private final CANSparkMax turretMotor  = new CANSparkMax(5, MotorType.kBrushed);
 
-  //private final DigitalInput clockLS = new DigitalInput(8);
-  //private final DigitalInput counterClockLS = new DigitalInput(9);
+  private final DigitalInput clockLS = new DigitalInput(8);
+  private final DigitalInput counterClockLS = new DigitalInput(9);
 
   public static Encoder turretEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k2X);
 
@@ -50,7 +50,6 @@ public class TurretSubsystem extends SubsystemBase {
     turretEncoder.reset();
     turretEncoder.setDistancePerPulse(Constants.encPulse);
     turretMotor.setInverted(true);
-    //TurretCenter();
 
   }
 
@@ -90,7 +89,7 @@ public class TurretSubsystem extends SubsystemBase {
       turretDistance = turretEncoder.getDistance() * turretDistPerTic;
       System.out.println("Encoder Distance: "+turretDistance);
     }
-    /*if (clockLS.get())
+    if (clockLS.get())
     {
       turretEncoder.reset();
       turretStop = true;
@@ -106,7 +105,7 @@ public class TurretSubsystem extends SubsystemBase {
       turretStop = false;
       clockStop = false;
       counterClockStop = false;
-    }*/
+    }
   }
 
   public void CenterLimelight(){

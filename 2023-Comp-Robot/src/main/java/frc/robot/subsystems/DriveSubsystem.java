@@ -30,7 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
   public static WPI_TalonFX rightBack = new WPI_TalonFX(1, "rio");
 
   // Gyro
-  //AHRS gyro = new AHRS(I2C.Port.kMXP);
+  AHRS gyro = new AHRS(I2C.Port.kMXP);
 
   // Motor Values 
 	final TalonFXInvertType kInvertType = TalonFXInvertType.Clockwise; 

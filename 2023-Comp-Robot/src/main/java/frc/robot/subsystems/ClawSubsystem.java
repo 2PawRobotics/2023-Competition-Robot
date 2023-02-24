@@ -19,28 +19,28 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class ClawSubsystem extends SubsystemBase {
 
-    /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
-    private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
-    private final ColorMatch colorMatcher = new ColorMatch();
+    //private final I2C.Port i2cPort = I2C.Port.kOnboard;
+    //private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
+    //private final ColorMatch colorMatcher = new ColorMatch();
 
-    private final Color yellow = new Color(1, 1, 1);
-    private final Color purple = new Color(0.5, 0, 0.5);
+    //private final Color yellow = new Color(1, 1, 1);
+    //private final Color purple = new Color(0.5, 0, 0.5);
 
     private final CANSparkMax clawMotor = new CANSparkMax(8, MotorType.kBrushed);
 
     public static Encoder clawEncoder = new Encoder(5, 6, false, Encoder.EncodingType.k2X);
 
-    String colorStringCheck;
+    //String colorStringCheck;
 
-    Boolean clawOpen = true;*/
+    Boolean clawOpen = true;
 
     public void ClawInit(){
 
         /*colorMatcher.addColorMatch(yellow);  
-        colorMatcher.addColorMatch(purple);
+        colorMatcher.addColorMatch(purple);*/
 
         clawEncoder.setDistancePerPulse(Constants.encPulse);
-        clawEncoder.reset();*/
+        clawEncoder.reset();
 
     }
 
@@ -72,7 +72,7 @@ public class ClawSubsystem extends SubsystemBase {
 
     public void ClawInteract(){
 
-        /*if (clawOpen == true && clawEncoder.get() < 2048) 
+        if (clawOpen == true && clawEncoder.get() < 2048) 
         {
             clawMotor.set(-.01);
         }
@@ -83,7 +83,7 @@ public class ClawSubsystem extends SubsystemBase {
         else
         {
             clawMotor.set(0);
-        }*/
+        }
 
     }
 }
