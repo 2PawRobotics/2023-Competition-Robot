@@ -130,13 +130,13 @@ public class TurretSubsystem extends SubsystemBase {
     /* Upper deadzone */
     if (value >= 0.05)
     {
-      value = value*Constants.armSpeed;
+      value = value*Constants.turretSpeed;
       return value;
     }
     /* Lower deadzone */
     else if (value <= -0.05)
     {
-      value = value*Constants.armSpeed;
+      value = value*Constants.turretSpeed;
       return value;
     }
     /* Outside deadzone */

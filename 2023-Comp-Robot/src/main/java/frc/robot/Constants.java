@@ -16,12 +16,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  */
 public final class Constants {
   
-  /* Driving Constants */
+  /* Speed Constants */
 
-  public static final double speedLimit = 0.85;
-
-  /* Testing Constants */
-
+  public static final double speedLimit = 0.3;
+  public static final double turretSpeed = .1;
   public static final double armSpeed = .1;
 
   /* Encoder Parameters */

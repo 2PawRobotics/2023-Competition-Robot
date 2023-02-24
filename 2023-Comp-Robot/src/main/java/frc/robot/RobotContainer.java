@@ -86,7 +86,7 @@ public class RobotContainer {
     limelightCenterButton.whileTrue(limelightCenterCommand);
 
     JoystickButton cubeButton = new JoystickButton(XCont2, 11);
-    cubeButton.onTrue(cubeScoreCommand);
+    cubeButton.whileTrue(cubeScoreCommand);
 
     JoystickButton defaultPosButton = new JoystickButton(XCont2, 1);
     defaultPosButton.whileTrue(idlePositionCommand);

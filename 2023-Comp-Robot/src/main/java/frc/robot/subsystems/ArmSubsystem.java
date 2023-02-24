@@ -24,7 +24,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     SlewRateLimiter turnFilter = new SlewRateLimiter(2);
 
-    static double lowDistPerTic = 1/((1024*100)/360);
+    static double startDist = 0;
+    static double c = Math.pow(8.45, 2);
+    static double b = Math.pow(18.1, 2);
+    static double a = Math.pow(1/((1024*100)*.2), 2);
+    static double lowDistPerTic = Math.acos((b+c-(a+startDist))/(2*18.1*8.45));
     static double upDistPerTic = 1/((1024*100)/360);
 
     boolean armStop;
@@ -224,7 +228,10 @@ public class ArmSubsystem extends SubsystemBase {
         if (ExtendedHeight < goalHeight)
         {
             upMotor.set(.1);
-            lowMotor.set(0);
+        }
+        else
+        {
+            upMotor.set(0);
         }
     }
 
