@@ -59,32 +59,43 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void TurretTeleop(){
 
-    double rotate = RobotContainer.XCont2.getLeftX();
+    int dPadValue = RobotContainer.XCont2.getPOV();
+    double rotate;
+    if (Math.abs(RobotContainer.XCont2.getLeftX()) > Math.abs(RobotContainer.XCont2.getLeftY()))
+    {
+      rotate = RobotContainer.XCont2.getLeftX();
+    }
+    else
+    {
+      rotate = 0;
+    }
     rotate = Deadzone(rotate);
 
     if (RobotContainer.XCont2.getRightTriggerAxis() == 1)
     {
       enableLimelight = true;
     }
-    if (RobotContainer.XCont2.getLeftBumperPressed() == true)
+    if (dPadValue == 0)
     {
       HighTarget = false;
       LowTarget = true;
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
-    }
-    if (RobotContainer.XCont2.getRightBumperPressed() == true)
+    } 
+    if (dPadValue == 180)
     {
       LowTarget = false;
       HighTarget = true;
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1 );
     } 
-    if (enableLimelight == true){
+    if (enableLimelight == true)
+    {
       Limelight_Tracking();
     }
     else if (turretStop == true)
     {
       TurretStop();
-    }else
+    }
+    else
     {
       turretMotor.set(rotate);
     }
@@ -93,13 +104,13 @@ public class TurretSubsystem extends SubsystemBase {
       turretDistance = turretEncoder.getDistance() * turretDistPerTic;
       System.out.println("Encoder Distance: "+turretDistance);
     }
-    if (clockLS.get())
+    if (clockLS.get() == false)
     {
       turretEncoder.reset();
       turretStop = true;
       clockStop = true;
     }
-    else if (counterClockLS.get())
+    else if (counterClockLS.get() == false)
     {
       turretStop = true;
       counterClockStop = true;

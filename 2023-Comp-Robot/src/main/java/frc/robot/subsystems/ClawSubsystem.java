@@ -57,7 +57,8 @@ public class ClawSubsystem extends SubsystemBase {
             {
                 if (clawDist < 5.75)
                 {
-                    clawMotor.set(.3);
+                    System.out.println(clawDist);
+                    clawMotor.set(.6);
                 }
                 else
                 {

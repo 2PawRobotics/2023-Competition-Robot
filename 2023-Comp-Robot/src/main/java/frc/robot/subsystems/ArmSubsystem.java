@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
@@ -23,13 +22,16 @@ public class ArmSubsystem extends SubsystemBase {
 
     //SlewRateLimiter turnFilter = new SlewRateLimiter(1);
 
-    static double startDist = 17.75;
-    static double c = Math.pow(8.45, 2);
-    static double b = Math.pow(18.1, 2);
-    static double a = 0;
+    static double startDist = 18.3125;
+    static double c = 8.45;
+    static double cPow = Math.pow(c, 2);
+    static double b = 18.1;
+    static double bPow = Math.pow(b, 2);
+    static double a;
     static double lowArmAngle;
+    static double lowArmRad;
 
-    static double upEncoderRotations = 0;
+    static double upEncoderRotations;
     static double upArmAngle;
 
     boolean armStop;
@@ -56,49 +58,61 @@ public class ArmSubsystem extends SubsystemBase {
         if (armBoolean == false)
         {
             upMotor.setInverted(true);
-            upEncoder.setDistancePerPulse(a);
             upEncoder.reset();
 
             lowMotor.setInverted(true);
-            lowEncoder.setDistancePerPulse(a);
             lowEncoder.reset();
         }
 
     }
     public void ArmTeleop() {
 
-        a = lowEncoder.getDistance()*(1/((1024*10)*.2));
-        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
 
         upEncoderRotations = (upEncoder.getDistance()/1024)/10;
 
-        upArmAngle = upEncoderRotations*.4363278;
+        upArmAngle = (upEncoderRotations*.4363278);
 
-        O1 = 180 - lowArmAngle;
-        O2 = upArmAngle;
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
 
-        ExtendOne = 40.62*Math.cos(O1);
+        ExtendOne = -(40.62*Math.cos(O1))+2;
         ExtendTwo = 39.25*Math.cos(O1+O2);
         ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        System.out.println("ExtendedLength: "+ExtendedLength);
 
         Extend1 = 40.62*Math.sin(O1);
         Extend2 = 39.25*Math.sin(O2);
         ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
 
-        double rotateLow = RobotContainer.XCont2.getLeftY();
+        double rotateLow; 
+
+        if (Math.abs(RobotContainer.XCont2.getLeftY()) > Math.abs(RobotContainer.XCont2.getLeftX()))
+        {
+            rotateLow = RobotContainer.XCont2.getLeftY();
+        }
+        else
+        {
+            rotateLow = 0;
+        }
         rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
         double rotateUp = RobotContainer.XCont2.getRightY();
         rotateUp = Deadzone(rotateUp)*Constants.upArmSpeed;
 
         if (armStop == true)
         {
-            System.out.println("Hello");
+            //System.out.println("Hello");
             ArmStop();
         }
-        else if (lowEncoder.get() <= 0)
+        else if (lowEncoder.get() <= 1)
         {
-            System.out.println("Hello");
             lowMotor.set(-0.25);
+        }
+        else if (upEncoder.get() <= 1)
+        {
+            upMotor.set(-0.25);
         }
         else
         {
@@ -107,12 +121,13 @@ public class ArmSubsystem extends SubsystemBase {
         }
         if (ExtendedLength >= 47.5)
         {
-
+            //System.out.println("Hello");
             armStop = true;
             lengthStop = true;
         }
         else if (ExtendedHeight >= 59.5)
         {
+            //System.out.println("Hello");
             armStop = true;
             heightStop = true;
         }
@@ -218,13 +233,12 @@ public class ArmSubsystem extends SubsystemBase {
     }
     public void ScoreCube(){
 
-        a = lowEncoder.getDistance()*(1/((1024*100)*.2));
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmAngle = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
 
-        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
 
-        upEncoderRotations = (upEncoder.getDistance()/1024)/100;
-
-        upArmAngle = upEncoderRotations*.4363278;
+        upArmAngle = (upEncoderRotations*.4363278)+12;
 
         O1 = 180 - lowArmAngle;
         O2 = upArmAngle;
@@ -256,13 +270,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     public static void ScoreCone(){
 
-        a = lowEncoder.getDistance()*(1/((1024*100)*.2));
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmAngle = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
 
-        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
 
-        upEncoderRotations = (upEncoder.getDistance()/1024)/100;
-
-        upArmAngle = upEncoderRotations*.4363278;
+        upArmAngle = (upEncoderRotations*.4363278)+12;
 
         O1 = 180 - lowArmAngle;
         O2 = upArmAngle;
