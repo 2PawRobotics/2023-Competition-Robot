@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -22,19 +21,21 @@ public class ArmSubsystem extends SubsystemBase {
     public static Encoder upEncoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
     public static Encoder lowEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k2X);
 
-    SlewRateLimiter turnFilter = new SlewRateLimiter(2);
+    //SlewRateLimiter turnFilter = new SlewRateLimiter(1);
 
-    static double startDist = 0;
+    static double startDist = 17.75;
     static double c = Math.pow(8.45, 2);
     static double b = Math.pow(18.1, 2);
-    static double a = Math.pow(1/((1024*100)*.2), 2);
-    static double lowDistPerTic = Math.acos((b+c-(a+startDist))/(2*18.1*8.45));
-    static double upDistPerTic = 1/((1024*100)/360);
+    static double a = 0;
+    static double lowArmAngle;
+
+    static double upEncoderRotations = 0;
+    static double upArmAngle;
 
     boolean armStop;
     boolean lengthStop;
     boolean heightStop;
-    double lowMotorStop = 59.5;
+    double lowMotorStop = 60;
 
     static double O1;
     static double O2;
@@ -49,18 +50,32 @@ public class ArmSubsystem extends SubsystemBase {
     static double BottomToPivot = 8.95;
     static double ExtendedHeight;
 
-    public void ArmInit() {
+    boolean armBoolean = false;
 
-        lowMotor.setInverted(true);
-		
-        lowEncoder.setDistancePerPulse(Constants.encPulse);
-        upEncoder.setDistancePerPulse(Constants.encPulse);
+    public void ArmInit() {
+        if (armBoolean == false)
+        {
+            upMotor.setInverted(true);
+            upEncoder.setDistancePerPulse(a);
+            upEncoder.reset();
+
+            lowMotor.setInverted(true);
+            lowEncoder.setDistancePerPulse(a);
+            lowEncoder.reset();
+        }
 
     }
     public void ArmTeleop() {
 
-        O1 = lowEncoder.getDistance()*lowDistPerTic;
-        O2 = upEncoder.getDistance()*upDistPerTic;
+        a = lowEncoder.getDistance()*(1/((1024*10)*.2));
+        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+
+        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
+
+        upArmAngle = upEncoderRotations*.4363278;
+
+        O1 = 180 - lowArmAngle;
+        O2 = upArmAngle;
 
         ExtendOne = 40.62*Math.cos(O1);
         ExtendTwo = 39.25*Math.cos(O1+O2);
@@ -71,23 +86,28 @@ public class ArmSubsystem extends SubsystemBase {
         ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
 
         double rotateLow = RobotContainer.XCont2.getLeftY();
-        rotateLow = Deadzone(rotateLow);
-        rotateLow = turnFilter.calculate(rotateLow);
+        rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
         double rotateUp = RobotContainer.XCont2.getRightY();
-        rotateUp = Deadzone(rotateUp);
-        rotateUp = turnFilter.calculate(rotateUp);
+        rotateUp = Deadzone(rotateUp)*Constants.upArmSpeed;
 
         if (armStop == true)
         {
+            System.out.println("Hello");
             ArmStop();
+        }
+        else if (lowEncoder.get() <= 0)
+        {
+            System.out.println("Hello");
+            lowMotor.set(-0.25);
         }
         else
         {
-            upMotor.set(rotateLow);
-            lowMotor.set(rotateUp);
+            upMotor.set(rotateUp);
+            lowMotor.set(rotateLow);
         }
         if (ExtendedLength >= 47.5)
         {
+
             armStop = true;
             lengthStop = true;
         }
@@ -95,14 +115,6 @@ public class ArmSubsystem extends SubsystemBase {
         {
             armStop = true;
             heightStop = true;
-        }
-        else if (O1 >= lowMotorStop)
-        {
-            lowMotor.set(-0.1);
-        }
-        else if (O1 <= -lowMotorStop)
-        {
-            lowMotor.set(0.1);
         }
         else
         {
@@ -136,13 +148,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     public double Deadzone(double value){
         /* Upper deadzone */
-        if (value >= +0.05){
-            value = value*Constants.armSpeed;
+        if (value >= +0.1){
             return value;
         }
       /* Lower deadzone */
-        else if (value <= -0.05){
-            value = value*Constants.armSpeed;
+        else if (value <= -0.1){
             return value;
         }
       /* Outside deadzone */
@@ -208,8 +218,17 @@ public class ArmSubsystem extends SubsystemBase {
     }
     public void ScoreCube(){
 
-        O1 = lowEncoder.getDistance()*lowDistPerTic;
-        O2 = upEncoder.getDistance()*upDistPerTic;
+        a = lowEncoder.getDistance()*(1/((1024*100)*.2));
+
+        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+
+        upEncoderRotations = (upEncoder.getDistance()/1024)/100;
+
+        upArmAngle = upEncoderRotations*.4363278;
+
+        O1 = 180 - lowArmAngle;
+        O2 = upArmAngle;
+
         Extend1 = 40.62*Math.sin(O1);
         Extend2 = 39.25*Math.sin(O2);
         ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
@@ -237,8 +256,16 @@ public class ArmSubsystem extends SubsystemBase {
 
     public static void ScoreCone(){
 
-        O1 = lowEncoder.getDistance()*lowDistPerTic;
-        O2 = upEncoder.getDistance()*upDistPerTic;
+        a = lowEncoder.getDistance()*(1/((1024*100)*.2));
+
+        lowArmAngle = Math.acos((b + c - Math.pow((a+startDist), 2))/(2*18.1*8.45));
+
+        upEncoderRotations = (upEncoder.getDistance()/1024)/100;
+
+        upArmAngle = upEncoderRotations*.4363278;
+
+        O1 = 180 - lowArmAngle;
+        O2 = upArmAngle;
 
         ExtendOne = 40.62*Math.cos(O1);
         ExtendTwo = 39.25*Math.cos(O1+O2);

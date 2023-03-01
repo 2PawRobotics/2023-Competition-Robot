@@ -13,7 +13,6 @@ import frc.robot.commands.ArmCommands.ArmCommand;
 import frc.robot.commands.ArmCommands.CubeScoreCommand;
 import frc.robot.commands.ArmCommands.IdlePositionCommand;
 import frc.robot.commands.ArmCommands.ShelfCommand;
-import frc.robot.commands.ClawCommands.ClawInteractCommand;
 import frc.robot.commands.ClawCommands.ClawCommand;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.TurretCommands.*;
@@ -44,7 +43,6 @@ public class RobotContainer {
 
   //Claw Commands
   private final ClawCommand clawCommand = new ClawCommand(clawSubsystem);
-  private final ClawInteractCommand clawCloseCommand = new ClawInteractCommand(clawSubsystem);
 
   //Arm Commands
   private final ArmCommand armCommand = new ArmCommand(armSubsystem);
@@ -93,9 +91,6 @@ public class RobotContainer {
 
     JoystickButton shelfPosButton = new JoystickButton(XCont2, 2);
     shelfPosButton.whileTrue(shelfCommand);
-
-    JoystickButton clawButton = new JoystickButton(XCont2, 3);
-    clawButton.whileTrue(clawCloseCommand);
 
   }
 

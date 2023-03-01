@@ -20,7 +20,8 @@ public final class Constants {
 
   public static final double speedLimit = 0.3;
   public static final double turretSpeed = .1;
-  public static final double armSpeed = .1;
+  public static final double lowArmSpeed = .75;
+  public static final double upArmSpeed = 1;
 
   /* Encoder Parameters */
 

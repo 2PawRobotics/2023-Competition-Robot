@@ -40,6 +40,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Drive Encoder Units
   final double kUnitsPerRevolution = (Math.PI*6)/8.45; 
+
+  boolean driveBoolean = false;
   
 
   public void DriveTeleop() {
@@ -59,34 +61,37 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
-  public void DriveInitialize(){
+  public void DriveInit(){
 
-    leftFront.set(ControlMode.PercentOutput, 0);
-    leftBack.set(ControlMode.PercentOutput, 0);
-    rightFront.set(ControlMode.PercentOutput, 0);
-    rightBack.set(ControlMode.PercentOutput, 0);
-    leftFront.configFactoryDefault();
-    leftBack.configFactoryDefault();
-    rightFront.configFactoryDefault();
-    rightBack.configFactoryDefault();
-    leftFront.setNeutralMode(NeutralMode.Brake);
-    leftBack.setNeutralMode(NeutralMode.Brake);
-    rightFront.setNeutralMode(NeutralMode.Brake);
-    rightBack.setNeutralMode(NeutralMode.Brake);
-    leftFront.setInverted(true);
-    leftBack.setInverted(true);
-    rightFront.setInverted(false); 
-    rightBack.setInverted(false);
+    if (driveBoolean == false)
+    {
+      leftFront.set(ControlMode.PercentOutput, 0);
+      leftBack.set(ControlMode.PercentOutput, 0);
+      rightFront.set(ControlMode.PercentOutput, 0);
+      rightBack.set(ControlMode.PercentOutput, 0);
+      leftFront.configFactoryDefault();
+      leftBack.configFactoryDefault();
+      rightFront.configFactoryDefault();
+      rightBack.configFactoryDefault();
+      leftFront.setNeutralMode(NeutralMode.Brake);
+      leftBack.setNeutralMode(NeutralMode.Brake);
+      rightFront.setNeutralMode(NeutralMode.Brake);
+      rightBack.setNeutralMode(NeutralMode.Brake);
+      leftFront.setInverted(true);
+      leftBack.setInverted(true);
+      rightFront.setInverted(false); 
+      rightBack.setInverted(false);
 
-    TalonFXConfiguration configs = new TalonFXConfiguration();
-			
-		configs.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
-			
-		leftFront.configAllSettings(configs);
-    leftFront.setSelectedSensorPosition(0);
+      TalonFXConfiguration configs = new TalonFXConfiguration();
+        
+      configs.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+        
+      leftFront.configAllSettings(configs);
+      leftFront.setSelectedSensorPosition(0);
 
-    rightFront.configAllSettings(configs);
-    rightFront.setSelectedSensorPosition(0);
+      rightFront.configAllSettings(configs);
+      rightFront.setSelectedSensorPosition(0);
+    }
 
   }
   

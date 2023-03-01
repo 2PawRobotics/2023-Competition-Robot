@@ -4,86 +4,90 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.Constants;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class ClawSubsystem extends SubsystemBase {
 
-    //private final I2C.Port i2cPort = I2C.Port.kOnboard;
-    //private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
-    //private final ColorMatch colorMatcher = new ColorMatch();
 
-    //private final Color yellow = new Color(1, 1, 1);
-    //private final Color purple = new Color(0.5, 0, 0.5);
+    private final static CANSparkMax clawMotor = new CANSparkMax(8, MotorType.kBrushed);
 
-    private final CANSparkMax clawMotor = new CANSparkMax(8, MotorType.kBrushed);
-
-    public static Encoder clawEncoder = new Encoder(5, 6, false, Encoder.EncodingType.k2X);
+    public static Encoder clawEncoder = new Encoder(6, 7, false, Encoder.EncodingType.k2X);
 
     //String colorStringCheck;
 
-    Boolean clawOpen = true;
+    boolean clawOpen = true;
+    boolean clawRun = false;
+    boolean clawBoolean = false;
+    boolean clawStart = false;
+    
 
     public void ClawInit(){
 
-        /*colorMatcher.addColorMatch(yellow);  
-        colorMatcher.addColorMatch(purple);*/
-
-        clawEncoder.setDistancePerPulse(Constants.encPulse);
-        clawEncoder.reset();
-
+        if (clawBoolean == false){
+            clawEncoder.reset();
+            clawMotor.set(0);
+            clawBoolean = true;
+        }
+        clawMotor.set(0);
     }
 
     public void ClawTeleop(){
-
-        /*Color detectedColor = colorSensor.getColor();
-
-        String colorString;
-        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
-
-        if (match.color == purple) 
+        
+        if (RobotContainer.XCont2.getXButtonPressed())
         {
-            colorString = "Purple";
-        } 
-        else if (match.color == yellow)
-        {
-            colorString = "Yellow";
-        } 
-        else 
-        {
-            colorString = "Unknown";
+            clawRun = true;
         }
-        if (colorString != colorStringCheck){
-            colorStringCheck = colorString;
-            System.out.println("Seeing: "+colorString);
-        }*/
-
+        if (clawRun == true)
+        {
+            ClawInteract();
+        }
     }
 
     public void ClawInteract(){
-
-        if (clawOpen == true && clawEncoder.get() < 2048) 
+        
+        double clawDist = .0000766895*clawEncoder.get();
+        if (clawRun == true)
         {
-            clawMotor.set(-.01);
+            if (clawOpen == true) 
+            {
+                if (clawDist < 5.75)
+                {
+                    clawMotor.set(.3);
+                }
+                else
+                {
+                    clawMotor.set(0);
+                    clawOpen = false;
+                    clawRun = false;
+                }
+            }
+            else if (clawOpen == false)
+            {
+                if (clawDist > 4)
+                {
+                    clawMotor.set(-.4);
+                }
+                else if (clawDist > .75)
+                {
+                    clawMotor.set(-.125);
+                }
+                else
+                {
+                    clawMotor.set(0);
+                    clawOpen = true;
+                    clawRun = false;
+                }
+            }
+            else
+            {
+                clawMotor.set(0);
+                clawRun = false;
+            }
         }
-        else if (clawOpen == false && clawEncoder.get() > 1)
-        {
-            clawMotor.set(.01);
-        }
-        else
-        {
-            clawMotor.set(0);
-        }
-
     }
 }

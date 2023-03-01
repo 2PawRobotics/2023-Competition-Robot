@@ -16,7 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class TurretSubsystem extends SubsystemBase {
   
-  private final CANSparkMax turretMotor  = new CANSparkMax(5, MotorType.kBrushed);
+  private final static CANSparkMax turretMotor  = new CANSparkMax(5, MotorType.kBrushed);
 
   private final DigitalInput clockLS = new DigitalInput(8);
   private final DigitalInput counterClockLS = new DigitalInput(9);
@@ -25,7 +25,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   double turretDistance = 0;
 
-  double turretDistPerTic = 1/(((1024*10)*27)/360);
+  static double turretDistPerTic = 1/(((1024*10)*27)/360);
 
   boolean turretStop = false;
   boolean clockStop = false;
@@ -45,12 +45,16 @@ public class TurretSubsystem extends SubsystemBase {
 
   public boolean haveTurned = false;
 
+  boolean turretBoolean = false;
+
   public void TurretInit(){
 
+    if (turretBoolean == false)
+    {
     turretEncoder.reset();
-    turretEncoder.setDistancePerPulse(Constants.encPulse);
+    turretEncoder.setDistancePerPulse(turretDistPerTic);
     turretMotor.setInverted(true);
-
+    }
   }
 
   public void TurretTeleop(){
@@ -147,10 +151,10 @@ public class TurretSubsystem extends SubsystemBase {
     {
       turretMotor.set(-.1);
     }
-    /*else if (turretStop == true && counterClockStop == true)
+    else if (turretStop == true && counterClockStop == true)
     {
       turretMotor.set(.1);
-    }*/
+    }
     else
     {
       turretMotor.set(0);
