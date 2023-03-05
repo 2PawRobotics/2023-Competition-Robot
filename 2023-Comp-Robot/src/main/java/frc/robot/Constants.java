@@ -23,17 +23,6 @@ public final class Constants {
   public static final double lowArmSpeed = .75;
   public static final double upArmSpeed = 1;
 
-  /* Encoder Parameters */
-
-  //Encoder counts per revelution
-  private static final double unitsPerRev = 360;
-  //Robot drive wheel diameter (Inches)
-  private static final double whd = 6;
-  //Encoder distance per pulse
-  public static final double encPulse = Math.PI*whd/unitsPerRev;
-  //Encoder prints
-  public static int printLoops = 0;
-
   /* Sendable Chooser */
   public static final String defaultAuto = "Default";
   public static final String customAuto = "My Auto";
@@ -44,5 +33,8 @@ public final class Constants {
   public static boolean havePlacedCone = false;
 
   public static double goalHeightInches = 0;
+
+  /* Other Booleans */
+  public static boolean runningArms = false;
 
 }

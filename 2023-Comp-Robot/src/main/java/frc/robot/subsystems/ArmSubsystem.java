@@ -17,7 +17,7 @@ public class ArmSubsystem extends SubsystemBase {
     public final static CANSparkMax lowMotor  = new CANSparkMax(6, MotorType.kBrushed);
     public final static CANSparkMax upMotor  = new CANSparkMax(7, MotorType.kBrushed);
 
-    public static Encoder upEncoder = new Encoder(4, 5, false, Encoder.EncodingType.k2X);
+    public static Encoder upEncoder = new Encoder(4, 5, true, Encoder.EncodingType.k2X);
     public static Encoder lowEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k2X);
 
     //SlewRateLimiter turnFilter = new SlewRateLimiter(1);
@@ -52,84 +52,123 @@ public class ArmSubsystem extends SubsystemBase {
     static double BottomToPivot = 8.95;
     static double ExtendedHeight;
 
+    boolean runIdle = false;
+    boolean lowIdle = false;
+    boolean upIdle = false;
+
+    boolean runShelf = false;
+    boolean lowShelf = false;
+    boolean upShelf = false;
+
     boolean armBoolean = false;
 
     public void ArmInit() {
         if (armBoolean == false)
         {
-            upMotor.setInverted(true);
+            upMotor.setInverted(false);
             upEncoder.reset();
 
             lowMotor.setInverted(true);
             lowEncoder.reset();
         }
-
     }
     public void ArmTeleop() {
-
         a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
         lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
         lowArmAngle = lowArmRad*(180/Math.PI);
 
-        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
+        upEncoderRotations = (upEncoder.get()/1024)/10;
 
-        upArmAngle = (upEncoderRotations*.4363278);
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
         O1 = Math.PI*lowArmAngle/180;
         O2 = Math.PI*((180-upArmAngle)/180);
 
         ExtendOne = -(40.62*Math.cos(O1))+2;
         ExtendTwo = 39.25*Math.cos(O1+O2);
-        ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
-        System.out.println("ExtendedLength: "+ExtendedLength);
-
-        Extend1 = 40.62*Math.sin(O1);
-        Extend2 = 39.25*Math.sin(O2);
-        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
-
-        double rotateLow; 
-
-        if (Math.abs(RobotContainer.XCont2.getLeftY()) > Math.abs(RobotContainer.XCont2.getLeftX()))
+        if (ExtendTwo < 0)
         {
-            rotateLow = RobotContainer.XCont2.getLeftY();
+            ExtendedLength = ExtendOne - PivotToEdge;
         }
         else
         {
-            rotateLow = 0;
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
         }
-        rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
-        double rotateUp = RobotContainer.XCont2.getRightY();
+
+        Extend1 = 40.62*Math.sin(O1);
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
+        
+        double rotateUp; 
+
+        if (RobotContainer.XCont.getBButtonPressed())
+        {
+            runIdle = true;
+        }
+        if (RobotContainer.XCont2.getBButtonPressed())
+        {
+            runShelf = true;
+        }
+        if (Math.abs(RobotContainer.XCont2.getRightY()) > Math.abs(RobotContainer.XCont2.getRightX()))
+        {
+            rotateUp = RobotContainer.XCont2.getRightY();
+        }
+        else
+        {
+            rotateUp = 0;
+        }
         rotateUp = Deadzone(rotateUp)*Constants.upArmSpeed;
+        double rotateLow = RobotContainer.XCont2.getLeftY();
+        rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
+        if (rotateUp > 0 || rotateLow > 0)
+        {
+            Constants.runningArms = true;
+            runIdle = false;
+            runShelf = false;
+        }
+        else
+        {
+            Constants.runningArms = false;
+        }
 
         if (armStop == true)
         {
-            //System.out.println("Hello");
             ArmStop();
         }
-        else if (lowEncoder.get() <= 1)
+        else if (lowEncoder.getDistance() <= 0)
         {
             lowMotor.set(-0.25);
+            upMotor.set(0);
         }
-        else if (upEncoder.get() <= 1)
+        else if (upEncoder.get() <= 0)
         {
             upMotor.set(-0.25);
+            lowMotor.set(0);
+        }
+        else if (Constants.runningArms == false && runIdle == true)
+        {
+            IdlePosition();
+        }
+        else if (Constants.runningArms == false && runShelf == true)
+        {
+            ShelfPosition();
         }
         else
         {
             upMotor.set(rotateUp);
             lowMotor.set(rotateLow);
         }
-        if (ExtendedLength >= 47.5)
+        if (ExtendedLength >= 46)
         {
-            //System.out.println("Hello");
             armStop = true;
             lengthStop = true;
+            heightStop = false;
         }
-        else if (ExtendedHeight >= 59.5)
+        else if (ExtendedHeight >= 76)
         {
-            //System.out.println("Hello");
             armStop = true;
             heightStop = true;
+            lengthStop = false;
         }
         else
         {
@@ -142,19 +181,18 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void ArmStop(){
 
-        lowMotor.set(0);
         if (armStop == true && lengthStop == true)
         {
-            lowMotor.set(-.01);
+            lowMotor.set(.35);
+            upMotor.set(0);
         }
         else if (armStop == true && heightStop == true)
         {
-            lowMotor.set(-.01);
-            upMotor.set(.01);
+            lowMotor.set(.25);
+            upMotor.set(.35);
         }
         else
         {
-            lowMotor.set(0);
             armStop = false;
             lengthStop = false;
             heightStop = false;
@@ -176,60 +214,79 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void IdlePosition(){
 
-        if (O1>-1.5)
+        upEncoderRotations = (upEncoder.get()/1024)/10;
+
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
+
+        if (lowEncoder.get() > 100)
         {
-            lowMotor.set(-.01);
+            lowMotor.set(0.8);
+            lowIdle = false;
         }
-        else if (O1<-2.5)
+        else if (lowEncoder.get() > 5)
         {
-            lowMotor.set(.01);
+            lowMotor.set(0.1);
+            lowIdle = false;
         }
         else
         {
             lowMotor.set(0);
+            lowIdle = true;
         }
-        if (O2>178.5)
+        if (upArmAngle > -165)
         {
-            upMotor.set(-.01);
-        }
-        else if (O2<177.5)
-        {
-            upMotor.set(.01);
+            upMotor.set(0.5);
+            upIdle = false;
         }
         else
         {
             upMotor.set(0);
+            upIdle = true;
         }
-
+        if (lowIdle == true && upIdle == true)
+        {
+            lowIdle = false;
+            upIdle = false;
+            runIdle = false;
+        }
     }
 
     public void ShelfPosition(){
 
-        if (O1>10.5)
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
+
+        upEncoderRotations = (upEncoder.get()/1024)/10;
+
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
+
+        if (lowArmAngle < 130)
         {
-            lowMotor.set(-.01);
-        }
-        else if (O1<9.5)
-        {
-            lowMotor.set(.01);
+            lowMotor.set(-0.8);
+            lowShelf = false;
         }
         else
         {
             lowMotor.set(0);
+            lowShelf = true;
         }
-        if (O2>90.5)
+        if (ExtendedHeight < 45)
         {
-            upMotor.set(-.01);
-        }
-        else if (O2<89.5)
-        {
-            upMotor.set(.01);
+            upMotor.set(-0.75);
+            upShelf = false;
         }
         else
         {
             upMotor.set(0);
+            upShelf = true;
         }
-
+        if (lowShelf == true && upShelf == true)
+        {
+            lowShelf = false;
+            upShelf = false;
+            runShelf = false;
+        }
     }
     public void ScoreCube(){
 
@@ -299,19 +356,19 @@ public class ArmSubsystem extends SubsystemBase {
 
         if (ExtendedHeight < goalHeight)
         {
-            upMotor.set(.1);
+            upMotor.set(.25);
             lowMotor.set(0);
         }
         else if (ExtendedLength < Constants.distanceFromLimelightToGoalInches)
         {
             upMotor.set(0);
-            lowMotor.set(.1);
+            lowMotor.set(.25);
         }
         else 
         {
-            Constants.havePlacedCone = true;
             upMotor.set(0);
             lowMotor.set(0);
+            ClawSubsystem.clawDrop();
         }
     }
 }

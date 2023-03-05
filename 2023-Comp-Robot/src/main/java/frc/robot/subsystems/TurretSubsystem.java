@@ -12,6 +12,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -43,6 +44,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public boolean enableLimelight = false;
 
+  public boolean setLimeDist = false;
   public boolean haveTurned = false;
 
   boolean turretBoolean = false;
@@ -54,6 +56,7 @@ public class TurretSubsystem extends SubsystemBase {
     turretEncoder.reset();
     turretEncoder.setDistancePerPulse(turretDistPerTic);
     turretMotor.setInverted(true);
+    turretMotor.setIdleMode(IdleMode.kBrake);
     }
   }
 
@@ -61,9 +64,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     int dPadValue = RobotContainer.XCont2.getPOV();
     double rotate;
-    if (Math.abs(RobotContainer.XCont2.getLeftX()) > Math.abs(RobotContainer.XCont2.getLeftY()))
+    if (Math.abs(RobotContainer.XCont2.getRightX()) > Math.abs(RobotContainer.XCont2.getRightY()))
     {
-      rotate = RobotContainer.XCont2.getLeftX();
+      rotate = RobotContainer.XCont2.getRightX();
     }
     else
     {
@@ -75,34 +78,29 @@ public class TurretSubsystem extends SubsystemBase {
     {
       enableLimelight = true;
     }
-    if (dPadValue == 0)
+    if (dPadValue == 180)
     {
       HighTarget = false;
       LowTarget = true;
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
     } 
-    if (dPadValue == 180)
+    if (dPadValue == 0)
     {
       LowTarget = false;
       HighTarget = true;
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1 );
     } 
-    if (enableLimelight == true)
-    {
-      Limelight_Tracking();
-    }
-    else if (turretStop == true)
+    if (turretStop == true)
     {
       TurretStop();
+    }
+    else if (enableLimelight == true)
+    {
+      Limelight_Tracking();
     }
     else
     {
       turretMotor.set(rotate);
-    }
-    if (turretEncoder.getDistance() != turretDistance)
-    {
-      turretDistance = turretEncoder.getDistance() * turretDistPerTic;
-      System.out.println("Encoder Distance: "+turretDistance);
     }
     if (clockLS.get() == false)
     {
@@ -200,26 +198,43 @@ public class TurretSubsystem extends SubsystemBase {
     double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
     double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
 
-    Constants.distanceFromLimelightToGoalInches = (Constants.goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians)/* add distance from limelight to arm */;
-
     System.out.println("Distance to goal: "+Constants.distanceFromLimelightToGoalInches);
     
     double limelightEncoderVal = 0;
 
+    if (setLimeDist == false)
+    {
+      Constants.distanceFromLimelightToGoalInches = (Constants.goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians)/* add distance from limelight to arm */;
+      limelightEncoderVal = turretEncoder.get() * turretDistPerTic;
+      setLimeDist = true;
+    }
     if (haveTurned == false)
     {
-      limelightEncoderVal = turretEncoder.getDistance() * turretDistPerTic;
-      haveTurned = true;
-    }
-
-    if (limelightEncoderVal + 90 > turretEncoder.getDistance() * turretDistPerTic)
-    {
-      turretMotor.set(.1);
+      if (limelightEncoderVal-90 < 1)
+      {
+        if (limelightEncoderVal + 270 > turretEncoder.get() * turretDistPerTic)
+        {
+          turretMotor.set(.1);
+        }
+        else
+        {
+          haveTurned = true;
+          turretMotor.set(0);
+        }
+      }
+      else if (limelightEncoderVal - 90 < turretEncoder.get() * turretDistPerTic)
+      {
+        turretMotor.set(-.1);
+      }
+      else
+      {
+        turretMotor.set(0);
+        haveTurned = true;
+      }
     }
     else if (Constants.havePlacedCone == false)
     {
       turretMotor.set(0);
-      haveTurned = false;
       ArmSubsystem.ScoreCone();
     }
     else
@@ -228,6 +243,7 @@ public class TurretSubsystem extends SubsystemBase {
       haveTurned = false;
       Constants.havePlacedCone = false;
       enableLimelight = false;
+      setLimeDist = false;
     }
   }
 }

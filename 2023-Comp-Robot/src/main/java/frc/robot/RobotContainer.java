@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.LEDCommand;
 import frc.robot.commands.ArmCommands.ArmCommand;
 import frc.robot.commands.ArmCommands.CubeScoreCommand;
-import frc.robot.commands.ArmCommands.IdlePositionCommand;
-import frc.robot.commands.ArmCommands.ShelfCommand;
 import frc.robot.commands.ClawCommands.ClawCommand;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.TurretCommands.*;
@@ -46,8 +44,6 @@ public class RobotContainer {
 
   //Arm Commands
   private final ArmCommand armCommand = new ArmCommand(armSubsystem);
-  private final IdlePositionCommand idlePositionCommand = new IdlePositionCommand(armSubsystem);
-  private final ShelfCommand shelfCommand = new ShelfCommand(armSubsystem);
   private final CubeScoreCommand cubeScoreCommand = new CubeScoreCommand(armSubsystem);
 
   //Turret Commands
@@ -80,18 +76,11 @@ public class RobotContainer {
     JoystickButton balanceButton = new JoystickButton(XCont, 2);
     balanceButton.whileTrue(balanceCommand);
 
-    JoystickButton limelightCenterButton = new JoystickButton(XCont2, 4);
+    JoystickButton limelightCenterButton = new JoystickButton(XCont2, 6);
     limelightCenterButton.whileTrue(limelightCenterCommand);
 
     JoystickButton cubeButton = new JoystickButton(XCont2, 11);
     cubeButton.whileTrue(cubeScoreCommand);
-
-    JoystickButton defaultPosButton = new JoystickButton(XCont2, 1);
-    defaultPosButton.whileTrue(idlePositionCommand);
-
-    JoystickButton shelfPosButton = new JoystickButton(XCont2, 2);
-    shelfPosButton.whileTrue(shelfCommand);
-
   }
 
   /**

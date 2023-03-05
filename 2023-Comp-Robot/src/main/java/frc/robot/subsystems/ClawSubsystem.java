@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.Encoder;
 
@@ -20,10 +21,14 @@ public class ClawSubsystem extends SubsystemBase {
 
     //String colorStringCheck;
 
-    boolean clawOpen = true;
-    boolean clawRun = false;
+    static boolean clawOpen = true;
+    boolean clawRunCone = false;
+    boolean clawRunCube = false;
     boolean clawBoolean = false;
     boolean clawStart = false;
+    static boolean clawHasDropped = false;
+
+    static double clawDist;
     
 
     public void ClawInit(){
@@ -38,33 +43,92 @@ public class ClawSubsystem extends SubsystemBase {
 
     public void ClawTeleop(){
         
-        if (RobotContainer.XCont2.getXButtonPressed())
+        if (RobotContainer.XCont2.getYButtonPressed())
         {
-            clawRun = true;
+            clawRunCube = true;
         }
-        if (clawRun == true)
+        else if (RobotContainer.XCont2.getXButtonPressed())
         {
-            ClawInteract();
+            clawRunCone = true;
+        }
+        if (clawRunCube == true)
+        {
+            ClawInteractCube();
+        }
+        else if (clawRunCone == true)
+        {
+            ClawInteractCone();
         }
     }
 
-    public void ClawInteract(){
+    public void ClawInteractCone(){
         
-        double clawDist = .0000766895*clawEncoder.get();
-        if (clawRun == true)
+        clawDist = .0000977202576*clawEncoder.get();
+        if (clawRunCone == true)
         {
             if (clawOpen == true) 
             {
-                if (clawDist < 5.75)
+                if (clawDist < 6.1)
                 {
-                    System.out.println(clawDist);
-                    clawMotor.set(.6);
+                    if (clawMotor.getOutputCurrent() > 20)
+                    {
+                        clawMotor.set(.4);
+                    }
+                    else
+                    {
+                        clawMotor.set(0);
+                        clawOpen = false;
+                        clawRunCone = false;
+                    }
                 }
                 else
                 {
                     clawMotor.set(0);
                     clawOpen = false;
-                    clawRun = false;
+                    clawRunCone = false;
+                }
+            }
+            else if (clawOpen == false)
+            {
+                if (clawDist > 4)
+                {
+                    clawMotor.set(-.25);
+                }
+                else if (clawDist > .75)
+                {
+                    clawMotor.set(-.125);
+                }
+                else
+                {
+                    clawMotor.set(0);
+                    clawOpen = true;
+                    clawRunCone = false;
+                }
+            }
+            else
+            {
+                clawMotor.set(0);
+                clawRunCone = false;
+            }
+        }
+    }
+    public void ClawInteractCube(){
+        
+        clawDist = .0000977202576*clawEncoder.get();
+        if (clawRunCube == true)
+        {
+            if (clawOpen == true) 
+            {
+                if (clawDist < 2.5)
+                {
+                    System.out.println(clawDist);
+                    clawMotor.set(.5);
+                }
+                else
+                {
+                    clawMotor.set(0);
+                    clawOpen = false;
+                    clawRunCube = false;
                 }
             }
             else if (clawOpen == false)
@@ -81,13 +145,34 @@ public class ClawSubsystem extends SubsystemBase {
                 {
                     clawMotor.set(0);
                     clawOpen = true;
-                    clawRun = false;
+                    clawRunCube = false;
                 }
             }
             else
             {
                 clawMotor.set(0);
-                clawRun = false;
+                clawRunCube = false;
+            }
+        }
+    }
+    public static void clawDrop(){
+
+        if (clawHasDropped == false)
+        {
+            if (clawDist > 4)
+            {
+                clawMotor.set(-.4);
+            }
+            else if (clawDist > .75)
+            {
+                clawMotor.set(-.125);
+            }
+            else
+            {
+                clawMotor.set(0);
+                clawOpen = true;
+                clawHasDropped = true;
+                Constants.havePlacedCone = true;
             }
         }
     }

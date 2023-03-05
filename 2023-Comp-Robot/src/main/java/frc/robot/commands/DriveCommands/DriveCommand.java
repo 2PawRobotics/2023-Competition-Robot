@@ -22,6 +22,8 @@ public class DriveCommand extends CommandBase {
   @Override
   public void initialize() {
 
+    driveSubsystem.DriveInit();
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
