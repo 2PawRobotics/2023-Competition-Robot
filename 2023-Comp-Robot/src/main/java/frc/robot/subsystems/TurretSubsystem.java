@@ -32,6 +32,8 @@ public class TurretSubsystem extends SubsystemBase {
   boolean clockStop = false;
   boolean counterClockStop = false;
 
+  double turretAngle = 0;
+
   // Stuff for limeLight
   public static boolean LowTarget = false;
   public static boolean HighTarget = false;
@@ -47,6 +49,8 @@ public class TurretSubsystem extends SubsystemBase {
   public boolean setLimeDist = false;
   public boolean haveTurned = false;
 
+  double limelightEncoderVal = 0;
+
   boolean turretBoolean = false;
 
   public void TurretInit(){
@@ -57,11 +61,15 @@ public class TurretSubsystem extends SubsystemBase {
     turretEncoder.setDistancePerPulse(turretDistPerTic);
     turretMotor.setInverted(true);
     turretMotor.setIdleMode(IdleMode.kBrake);
+    turretBoolean = true;
+    Constants.goalHeightInches = 24.00;
     }
   }
 
   public void TurretTeleop(){
 
+    turretAngle = turretEncoder.get()/(((1024*9)*27)/360);
+    //System.out.println(turretAngle);
     int dPadValue = RobotContainer.XCont2.getPOV();
     double rotate;
     if (Math.abs(RobotContainer.XCont2.getRightX()) > Math.abs(RobotContainer.XCont2.getRightY()))
@@ -124,6 +132,7 @@ public class TurretSubsystem extends SubsystemBase {
   public void CenterLimelight(){
 
     double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    turretAngle = turretEncoder.get()/(((1024*9)*27)/360);
 
     if (tx > 1)
     {
@@ -198,23 +207,22 @@ public class TurretSubsystem extends SubsystemBase {
     double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
     double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
 
-    System.out.println("Distance to goal: "+Constants.distanceFromLimelightToGoalInches);
-    
-    double limelightEncoderVal = 0;
+    //System.out.println("Distance to goal: "+Constants.distanceFromLimelightToGoalInches);
 
     if (setLimeDist == false)
     {
       Constants.distanceFromLimelightToGoalInches = (Constants.goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians)/* add distance from limelight to arm */;
-      limelightEncoderVal = turretEncoder.get() * turretDistPerTic;
+      limelightEncoderVal = turretAngle;
       setLimeDist = true;
+      System.out.println(Constants.distanceFromLimelightToGoalInches);
     }
     if (haveTurned == false)
     {
       if (limelightEncoderVal-90 < 1)
       {
-        if (limelightEncoderVal + 270 > turretEncoder.get() * turretDistPerTic)
+        if (limelightEncoderVal + 270 > turretAngle)
         {
-          turretMotor.set(.1);
+          turretMotor.set(-.2);
         }
         else
         {
@@ -222,9 +230,9 @@ public class TurretSubsystem extends SubsystemBase {
           turretMotor.set(0);
         }
       }
-      else if (limelightEncoderVal - 90 < turretEncoder.get() * turretDistPerTic)
+      else if (limelightEncoderVal - 90 < turretAngle)
       {
-        turretMotor.set(-.1);
+        turretMotor.set(.2);
       }
       else
       {

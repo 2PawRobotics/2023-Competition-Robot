@@ -32,8 +32,10 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     Shuffleboard.getTab("Auton").add("Auton Path Test", Constants.sendChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    Constants.sendChooser.setDefaultOption("Default Auto", Constants.defaultAuto);
-    Constants.sendChooser.addOption("My Auto", Constants.customAuto);
+    Constants.sendChooser.setDefaultOption("Default", Constants.defaultAuto);
+    Constants.sendChooser.addOption("Score and Drive", Constants.scoreDriveAuto);
+    Constants.sendChooser.addOption("Balance", Constants.balanceAuto);
+    Constants.sendChooser.addOption("Score and Balance", Constants.scoreBalanceAuto);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("").setNumber(0);
   }
 

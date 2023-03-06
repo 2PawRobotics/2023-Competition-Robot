@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -62,6 +63,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     boolean armBoolean = false;
 
+    static double goalHeight = 0;
+    static double goalDist = 0;
+
+    Timer armTimer = new Timer();
+
     public void ArmInit() {
         if (armBoolean == false)
         {
@@ -70,6 +76,8 @@ public class ArmSubsystem extends SubsystemBase {
 
             lowMotor.setInverted(true);
             lowEncoder.reset();
+
+            goalHeight = 48;
         }
     }
     public void ArmTeleop() {
@@ -105,7 +113,7 @@ public class ArmSubsystem extends SubsystemBase {
         {
             runIdle = true;
         }
-        if (RobotContainer.XCont2.getBButtonPressed())
+        if (RobotContainer.XCont2.getAButtonPressed())
         {
             runShelf = true;
         }
@@ -120,7 +128,7 @@ public class ArmSubsystem extends SubsystemBase {
         rotateUp = Deadzone(rotateUp)*Constants.upArmSpeed;
         double rotateLow = RobotContainer.XCont2.getLeftY();
         rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
-        if (rotateUp > 0 || rotateLow > 0)
+        if (Math.abs(rotateUp) > 0 || Math.abs(rotateLow) > 0)
         {
             Constants.runningArms = true;
             runIdle = false;
@@ -218,27 +226,24 @@ public class ArmSubsystem extends SubsystemBase {
 
         upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        if (lowEncoder.get() > 100)
+        if (lowEncoder.get() > 100 && lowIdle == false)
         {
             lowMotor.set(0.8);
-            lowIdle = false;
-        }
-        else if (lowEncoder.get() > 5)
-        {
-            lowMotor.set(0.1);
-            lowIdle = false;
         }
         else
         {
             lowMotor.set(0);
             lowIdle = true;
         }
-        if (upArmAngle > -165)
+        if (upArmAngle > -150)
         {
-            upMotor.set(0.5);
-            upIdle = false;
+            upMotor.set(0.75);
         }
-        else
+        else if (upArmAngle > -165)
+        {
+            upMotor.set(0.2);
+        }
+        else 
         {
             upMotor.set(0);
             upIdle = true;
@@ -291,20 +296,30 @@ public class ArmSubsystem extends SubsystemBase {
     public void ScoreCube(){
 
         a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
-        lowArmAngle = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
 
-        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
+        upEncoderRotations = (upEncoder.get()/1024)/10;
 
-        upArmAngle = (upEncoderRotations*.4363278)+12;
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        O1 = 180 - lowArmAngle;
-        O2 = upArmAngle;
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
+
+        ExtendOne = -(40.62*Math.cos(O1))+2;
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        if (ExtendTwo < 0)
+        {
+            ExtendedLength = ExtendOne - PivotToEdge;
+        }
+        else
+        {
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        }
 
         Extend1 = 40.62*Math.sin(O1);
-        Extend2 = 39.25*Math.sin(O2);
-        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
-
-        double goalHeight = 0;
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
 
         if (TurretSubsystem.HighTarget == true)
         {
@@ -328,47 +343,152 @@ public class ArmSubsystem extends SubsystemBase {
     public static void ScoreCone(){
 
         a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
-        lowArmAngle = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
 
-        upEncoderRotations = (upEncoder.getDistance()/1024)/10;
+        upEncoderRotations = (upEncoder.get()/1024)/10;
 
-        upArmAngle = (upEncoderRotations*.4363278)+12;
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        O1 = 180 - lowArmAngle;
-        O2 = upArmAngle;
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
 
-        ExtendOne = 40.62*Math.cos(O1);
+        ExtendOne = -(40.62*Math.cos(O1))+2;
         ExtendTwo = 39.25*Math.cos(O1+O2);
-        ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        if (ExtendTwo < 0)
+        {
+            ExtendedLength = ExtendOne - PivotToEdge;
+        }
+        else
+        {
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        }
 
         Extend1 = 40.62*Math.sin(O1);
-        Extend2 = 39.25*Math.sin(O2);
-        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
-        double goalHeight = 0;
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
         if (TurretSubsystem.HighTarget == true)
         {
             goalHeight = 50;
         }
         else if (TurretSubsystem.LowTarget == true)
         {
-            goalHeight = 36;
+            goalHeight = 48;
         }
-
+        //System.out.println(ExtendedLength);
         if (ExtendedHeight < goalHeight)
         {
-            upMotor.set(.25);
+            upMotor.set(-.25);
             lowMotor.set(0);
         }
-        else if (ExtendedLength < Constants.distanceFromLimelightToGoalInches)
+        else if (ExtendedLength+2 < Constants.distanceFromLimelightToGoalInches)
         {
             upMotor.set(0);
-            lowMotor.set(.25);
+            lowMotor.set(-.25);
         }
         else 
         {
             upMotor.set(0);
             lowMotor.set(0);
             ClawSubsystem.clawDrop();
+        }
+    }
+    public void ArmAutonInit()
+    {
+        upMotor.setInverted(false);
+        upEncoder.reset();
+
+        lowMotor.setInverted(true);
+        lowEncoder.reset();
+
+        goalHeight = 58;
+        goalDist = 30;
+
+        armTimer.reset();
+        armTimer.start();
+
+        runIdle = true;
+    }
+
+    public void ArmAuton()
+    {
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
+
+        upEncoderRotations = (upEncoder.get()/1024)/10;
+
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
+
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
+
+        ExtendOne = -(40.62*Math.cos(O1))+2;
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        if (ExtendTwo < 0)
+        {
+            ExtendedLength = ExtendOne - PivotToEdge;
+        }
+        else
+        {
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        }
+
+        Extend1 = 40.62*Math.sin(O1);
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
+        if (armTimer.get() > 2 && armTimer.get() < 8)
+        {
+            if (ExtendedHeight < goalHeight)
+            {
+                upMotor.set(-.25);
+                lowMotor.set(0);
+            }
+            else if (ExtendedLength < goalDist)
+            {
+                upMotor.set(0);
+                lowMotor.set(-.25);
+            }
+            else 
+            {
+                upMotor.set(0);
+                lowMotor.set(0);
+            }
+
+        }
+        if (armTimer.get() >= 8 && armTimer.get() < 11)
+        {
+            if (runIdle == true)
+            {
+                if (lowEncoder.get() > 100 && lowIdle == false)
+                {
+                    lowMotor.set(0.8);
+                }
+                else
+                {
+                    lowMotor.set(0);
+                    lowIdle = true;
+                }
+                if (upArmAngle > -150)
+                {
+                    upMotor.set(0.75);
+                }
+                else if (upArmAngle > -165)
+                {
+                    upMotor.set(0.2);
+                }
+                else 
+                {
+                    upMotor.set(0);
+                    upIdle = true;
+                }
+                if (lowIdle == true && upIdle == true)
+                {
+                    lowIdle = false;
+                    upIdle = false;
+                    runIdle = false;
+                }
+            }
         }
     }
 }

@@ -25,7 +25,10 @@ public final class Constants {
 
   /* Sendable Chooser */
   public static final String defaultAuto = "Default";
-  public static final String customAuto = "My Auto";
+  public static final String scoreDriveAuto = "Score and Drive";
+  public static final String balanceAuto = "Balance";
+  public static final String scoreBalanceAuto = "Score and Balance";
+
   final static SendableChooser<String> sendChooser = new SendableChooser<>();
 
   /* Limelight Stuff */

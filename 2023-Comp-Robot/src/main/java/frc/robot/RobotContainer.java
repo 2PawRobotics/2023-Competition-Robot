@@ -9,8 +9,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.LEDCommand;
+import frc.robot.commands.ArmCommands.ArmAutonCommand;
 import frc.robot.commands.ArmCommands.ArmCommand;
 import frc.robot.commands.ArmCommands.CubeScoreCommand;
+import frc.robot.commands.ClawCommands.ClawAutonCommand;
 import frc.robot.commands.ClawCommands.ClawCommand;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.TurretCommands.*;
@@ -38,13 +40,17 @@ public class RobotContainer {
 
   //Drive Commands
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem);
+  private final DriveAutonCommand driveAutonCommand = new DriveAutonCommand(driveSubsystem);
+  private final DriveAutonScoreCommand driveAutonScoreCommand = new DriveAutonScoreCommand(driveSubsystem);
 
   //Claw Commands
   private final ClawCommand clawCommand = new ClawCommand(clawSubsystem);
+  private final ClawAutonCommand clawAutonCommand = new ClawAutonCommand(clawSubsystem);
 
   //Arm Commands
   private final ArmCommand armCommand = new ArmCommand(armSubsystem);
   private final CubeScoreCommand cubeScoreCommand = new CubeScoreCommand(armSubsystem);
+  private final ArmAutonCommand armAutonCommand = new ArmAutonCommand(armSubsystem);
 
   //Turret Commands
   private final TurretCommand turretCommand = new TurretCommand(turretSubsystem);
@@ -73,7 +79,7 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    JoystickButton balanceButton = new JoystickButton(XCont, 2);
+    JoystickButton balanceButton = new JoystickButton(XCont, 3);
     balanceButton.whileTrue(balanceCommand);
 
     JoystickButton limelightCenterButton = new JoystickButton(XCont2, 6);
@@ -91,11 +97,22 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     String autoSelected = Constants.sendChooser.getSelected();
-    if (autoSelected == Constants.customAuto){
-      return null;
+    if (autoSelected == Constants.scoreDriveAuto){
+      return new ClawAutonCommand(clawSubsystem)
+      .alongWith(new DriveAutonScoreCommand(driveSubsystem), new ArmAutonCommand(armSubsystem));
     }
-    else{
-      return null;
+    else if (autoSelected == Constants.balanceAuto)
+    {
+      return new DriveAutonBalanceCommand(driveSubsystem);
+    }
+    else if (autoSelected == Constants.scoreBalanceAuto)
+    {
+      return new DriveAutonScoreCommand(driveSubsystem)
+      .alongWith( new ArmAutonCommand(armSubsystem));
+    }
+    else
+    {
+      return new DriveAutonCommand(driveSubsystem);
     }
   }
 }

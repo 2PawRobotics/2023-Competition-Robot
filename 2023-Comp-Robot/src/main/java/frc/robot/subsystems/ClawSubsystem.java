@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -29,7 +30,9 @@ public class ClawSubsystem extends SubsystemBase {
     static boolean clawHasDropped = false;
 
     static double clawDist;
-    
+
+    /* Auton */
+    Timer clawTimer = new Timer();
 
     public void ClawInit(){
 
@@ -70,7 +73,8 @@ public class ClawSubsystem extends SubsystemBase {
             {
                 if (clawDist < 6.1)
                 {
-                    if (clawMotor.getOutputCurrent() > 20)
+                    System.out.println(clawMotor.getOutputCurrent());
+                    if (clawMotor.getOutputCurrent() < 35)
                     {
                         clawMotor.set(.4);
                     }
@@ -174,6 +178,26 @@ public class ClawSubsystem extends SubsystemBase {
                 clawHasDropped = true;
                 Constants.havePlacedCone = true;
             }
+        }
+    }
+
+    public void ClawAutonInit()
+    {
+        clawTimer.reset();
+        clawTimer.start();
+        clawEncoder.reset();
+        clawMotor.set(0);
+    }
+
+    public void ClawAuton()
+    {
+        if (clawOpen == true && clawTimer.get() <= 2)
+        {
+            ClawInteractCube();
+        }
+        else if (clawOpen == false && clawTimer.get() >= 8)
+        {
+            ClawInteractCube();
         }
     }
 }
