@@ -18,16 +18,17 @@ public final class Constants {
   
   /* Speed Constants */
 
-  public static final double speedLimit = 0.3;
+  public static final double speedLimit = 0.75;
+  public static final double turnSpeed = 0.45;
   public static final double turretSpeed = .3;
   public static final double lowArmSpeed = .75;
   public static final double upArmSpeed = 1;
 
   /* Sendable Chooser */
   public static final String defaultAuto = "Default";
-  public static final String scoreDriveAuto = "Score and Drive";
+  public static final String scoreDriveAuto = "1 Score and Drive";
   public static final String balanceAuto = "Balance";
-  public static final String scoreBalanceAuto = "Score and Balance";
+  public static final String scoreDriveAuto2 = "2 Score and Balance";
 
   final static SendableChooser<String> sendChooser = new SendableChooser<>();
 

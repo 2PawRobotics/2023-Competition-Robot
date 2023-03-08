@@ -137,11 +137,11 @@ public class ClawSubsystem extends SubsystemBase {
             }
             else if (clawOpen == false)
             {
-                if (clawDist > 4)
+                if (clawDist > 2)
                 {
                     clawMotor.set(-.4);
                 }
-                else if (clawDist > .75)
+                else if (clawDist > .5)
                 {
                     clawMotor.set(-.125);
                 }
@@ -193,10 +193,14 @@ public class ClawSubsystem extends SubsystemBase {
     {
         if (clawOpen == true && clawTimer.get() <= 2)
         {
+            clawRunCube = true;
+            System.out.println("closing");
             ClawInteractCube();
         }
-        else if (clawOpen == false && clawTimer.get() >= 8)
+        else if (clawOpen == false && clawTimer.get() >= 6)
         {
+            clawRunCube = true;
+            System.out.println("opening");
             ClawInteractCube();
         }
     }

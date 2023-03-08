@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -33,10 +34,11 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     Shuffleboard.getTab("Auton").add("Auton Path Test", Constants.sendChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     Constants.sendChooser.setDefaultOption("Default", Constants.defaultAuto);
-    Constants.sendChooser.addOption("Score and Drive", Constants.scoreDriveAuto);
+    Constants.sendChooser.addOption("1 Score and Drive", Constants.scoreDriveAuto);
     Constants.sendChooser.addOption("Balance", Constants.balanceAuto);
-    Constants.sendChooser.addOption("Score and Balance", Constants.scoreBalanceAuto);
+    Constants.sendChooser.addOption("2 Score and Balance", Constants.scoreDriveAuto2);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("").setNumber(0);
+    CameraServer.startAutomaticCapture();
   }
 
   /**

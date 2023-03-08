@@ -143,12 +143,12 @@ public class ArmSubsystem extends SubsystemBase {
         {
             ArmStop();
         }
-        else if (lowEncoder.getDistance() <= 0)
+        else if (lowEncoder.getDistance() < -1)
         {
             lowMotor.set(-0.25);
             upMotor.set(0);
         }
-        else if (upEncoder.get() <= 0)
+        else if (upEncoder.get() < -1)
         {
             upMotor.set(-0.25);
             lowMotor.set(0);
@@ -278,11 +278,13 @@ public class ArmSubsystem extends SubsystemBase {
         }
         if (ExtendedHeight < 45)
         {
+            System.out.println("Hello");
             upMotor.set(-0.75);
             upShelf = false;
         }
         else
         {
+            System.out.println("Goodbye");
             upMotor.set(0);
             upShelf = true;
         }
@@ -401,8 +403,8 @@ public class ArmSubsystem extends SubsystemBase {
         lowMotor.setInverted(true);
         lowEncoder.reset();
 
-        goalHeight = 58;
-        goalDist = 30;
+        goalHeight = 74;
+        goalDist = 45;
 
         armTimer.reset();
         armTimer.start();
@@ -437,26 +439,33 @@ public class ArmSubsystem extends SubsystemBase {
         Extend1 = 40.62*Math.sin(O1);
         Extend2 = 39.25*Math.sin(O1+O2);        
         ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
-        if (armTimer.get() > 2 && armTimer.get() < 8)
+        if (armTimer.get() > 1 && armTimer.get() < 4)
         {
             if (ExtendedHeight < goalHeight)
             {
-                upMotor.set(-.25);
+                upMotor.set(-.55);
                 lowMotor.set(0);
-            }
-            else if (ExtendedLength < goalDist)
-            {
-                upMotor.set(0);
-                lowMotor.set(-.25);
             }
             else 
             {
                 upMotor.set(0);
                 lowMotor.set(0);
             }
-
         }
-        if (armTimer.get() >= 8 && armTimer.get() < 11)
+        else if (armTimer.get() >= 4 && armTimer.get() < 8)
+        {
+            if (ExtendedLength < goalDist)
+            {
+                upMotor.set(0);
+                lowMotor.set(-.70);
+            }
+            else 
+            {
+                upMotor.set(0);
+                lowMotor.set(0);
+            }
+        }
+        if (armTimer.get() >= 11 && armTimer.get() < 15)
         {
             if (runIdle == true)
             {

@@ -35,8 +35,7 @@ public class DriveSubsystem extends SubsystemBase {
   // Motor Values 
 	final TalonFXInvertType kInvertType = TalonFXInvertType.Clockwise; 
 	final NeutralMode kBrakeDurNeutral = NeutralMode.Coast;
-  SlewRateLimiter driveFilter = new SlewRateLimiter(0.7);
-  SlewRateLimiter turnFilter = new SlewRateLimiter(1.4);
+  SlewRateLimiter driveFilter = new SlewRateLimiter(1.75);
 
   // Drive Encoder Units
   final double inchPerRev = (Math.PI*6)/10.71; 
@@ -56,11 +55,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void DriveTeleop() 
   {
     double forward = RobotContainer.XCont.getLeftY();
-    double turn = RobotContainer.XCont.getRightX()*.7;
+    double turn = RobotContainer.XCont.getRightX()*Constants.turnSpeed;
     forward = Deadzone(forward);
     turn = Deadzone(turn);
     forward = driveFilter.calculate(forward);
-    turn = turnFilter.calculate(turn);
     
     leftFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
     leftBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
@@ -119,38 +117,53 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void Balance(){
 
-    double pitch = gyro.getPitch();
-    double speed = .095;
+    double pitch = -gyro.getPitch();
+    double speed = .125;
     speed = driveFilter.calculate(speed);
-    double speed2 = .25;
+    double speed2 = .35;
     speed2 = driveFilter.calculate(speed2);
-    if (pitch > 12)
-    {
-      leftFront.set(speed);
-      leftBack.set(speed);
-      rightFront.set(speed);
-      rightBack.set(speed);
-    }
-    else if (pitch < 12 && pitch > 5)
-    {
-      leftFront.set(speed2);
-      leftBack.set(speed2);
-      rightFront.set(speed2);
-      rightBack.set(speed2);
-    }
-    else if (pitch < -12)
+    System.out.println(pitch);
+    if (pitch > 12 && pitch < 15)
     {
       leftFront.set(-speed);
       leftBack.set(-speed);
       rightFront.set(-speed);
       rightBack.set(-speed);
     }
-    else if (pitch > -12 && pitch < -5)
+    else if (pitch < 12 && pitch > 5)
     {
       leftFront.set(-speed2);
       leftBack.set(-speed2);
       rightFront.set(-speed2);
       rightBack.set(-speed2);
+    }
+    else if (pitch > 15)
+    {
+      leftFront.set(-.05);
+      leftBack.set(-.05);
+      rightFront.set(-.05);
+      rightBack.set(-.05);
+    }
+    else if (pitch < -12 && pitch > -15)
+    {
+      leftFront.set(speed);
+      leftBack.set(speed);
+      rightFront.set(speed);
+      rightBack.set(speed);
+    }
+    else if (pitch > -12 && pitch < -5)
+    {
+      leftFront.set(speed2);
+      leftBack.set(speed2);
+      rightFront.set(speed2);
+      rightBack.set(speed2);
+    }
+    else if (pitch < -15)
+    {
+      leftFront.set(.05);
+      leftBack.set(.05);
+      rightFront.set(.05);
+      rightBack.set(.05);
     }
     else
     {
@@ -204,24 +217,91 @@ public class DriveSubsystem extends SubsystemBase {
         rightBack.set(0);
       }
   }
-
-  public void DriveAutonScore()
+  public void DriveAutonScore2()
   {
     driveDistLeft = (leftFront.getSelectedSensorPosition()/2048)*inchPerRev;
-    driveDistRight = (rightFront.getSelectedSensorPosition()/2048)*inchPerRev;
+    driveDistRight = (-rightFront.getSelectedSensorPosition()/2048)*inchPerRev;
+
     if (driveTimer.get() > 8 && driveTimer.get() <= 15)
     {
-      if (driveDistLeft < 30 && driveDistRight < 30)
+      if (driveDistRight < 8)
       {
-        leftFront.set(.4);
-        rightFront.set(-.4);
-        leftBack.set(.4);
-        rightBack.set(-.4);
+        leftFront.set(0);
+        leftBack.set(0);
+        rightBack.set(-0.2);
+        rightFront.set(-0.2);
+      }
+      else if (driveDistRight < 18)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(-.2);
+        rightFront.set(-.2);
+      }
+      else if (driveDistLeft < 20)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(0);
+        rightFront.set(0);
+      }
+      else if (driveDistLeft < 150 && driveDistRight < 150)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(-.2);
+        rightFront.set(-.2);
       }
       else
       {
         leftFront.set(0);
         rightFront.set(0);
+        leftBack.set(0);
+        rightBack.set(0);
+      }
+    }
+  }
+  public void DriveAutonScore()
+  {
+    driveDistLeft = (leftFront.getSelectedSensorPosition()/2048)*inchPerRev;
+    driveDistRight = (-rightFront.getSelectedSensorPosition()/2048)*inchPerRev;
+
+    if (driveTimer.get() > 8 && driveTimer.get() <= 15)
+    {
+      if (driveDistLeft < 8)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(0);
+        rightFront.set(0);
+      }
+      else if (driveDistLeft < 18)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(-.2);
+        rightFront.set(-.2);
+      }
+      else if (driveDistRight < 20)
+      {
+        leftFront.set(0);
+        leftBack.set(0);
+        rightBack.set(-.2);
+        rightFront.set(-.2);
+      }
+      else if (driveDistLeft < 150 && driveDistRight < 150)
+      {
+        leftFront.set(.2);
+        leftBack.set(.2);
+        rightBack.set(-.2);
+        rightFront.set(-.2);
+      }
+      else
+      {
+        leftFront.set(0);
+        rightFront.set(0);
+        leftBack.set(0);
+        rightBack.set(0);
       }
     }
   }
@@ -233,7 +313,7 @@ public class DriveSubsystem extends SubsystemBase {
     {
       if (driveDistLeft < 150 && driveDistRight < 150)
       {
-        if (gyro.getPitch() < -1.5)
+        if (-gyro.getPitch() < -2)
         {
           leftFront.set(.15);
           rightFront.set(-.15);
@@ -241,12 +321,12 @@ public class DriveSubsystem extends SubsystemBase {
           rightBack.set(-.15);
           speedBoost = true;
         }
-        else if (gyro.getPitch() >= -1.5 && gyro.getPitch() < 12 && speedBoost == true)
+        else if (-gyro.getPitch() > -2 && -gyro.getPitch() < 12 && speedBoost == true)
         {
-          leftFront.set(.35);
-          rightFront.set(-.35);
-          leftBack.set(.35);
-          rightBack.set(-.35);
+          leftFront.set(.45);
+          rightFront.set(-.45);
+          leftBack.set(.45);
+          rightBack.set(-.45);
         }
         else
         {
@@ -275,7 +355,7 @@ public class DriveSubsystem extends SubsystemBase {
       System.out.println("driveDistRight: "+driveDistRight);
       double speed = .3;
       speed = driveFilter.calculate(speed);
-      if (driveDistLeft > 110 && driveDistRight > 110 && gyro.getPitch() > -5)
+      if (driveDistLeft > 110 && driveDistRight > 110 || -gyro.getPitch() > -5)
       {
         leftFront.set(-speed);
         rightFront.set(speed);

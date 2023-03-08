@@ -40,17 +40,13 @@ public class RobotContainer {
 
   //Drive Commands
   private final DriveCommand driveCommand = new DriveCommand(driveSubsystem);
-  private final DriveAutonCommand driveAutonCommand = new DriveAutonCommand(driveSubsystem);
-  private final DriveAutonScoreCommand driveAutonScoreCommand = new DriveAutonScoreCommand(driveSubsystem);
 
   //Claw Commands
   private final ClawCommand clawCommand = new ClawCommand(clawSubsystem);
-  private final ClawAutonCommand clawAutonCommand = new ClawAutonCommand(clawSubsystem);
 
   //Arm Commands
   private final ArmCommand armCommand = new ArmCommand(armSubsystem);
   private final CubeScoreCommand cubeScoreCommand = new CubeScoreCommand(armSubsystem);
-  private final ArmAutonCommand armAutonCommand = new ArmAutonCommand(armSubsystem);
 
   //Turret Commands
   private final TurretCommand turretCommand = new TurretCommand(turretSubsystem);
@@ -105,10 +101,10 @@ public class RobotContainer {
     {
       return new DriveAutonBalanceCommand(driveSubsystem);
     }
-    else if (autoSelected == Constants.scoreBalanceAuto)
+    else if (autoSelected == Constants.scoreDriveAuto2)
     {
-      return new DriveAutonScoreCommand(driveSubsystem)
-      .alongWith( new ArmAutonCommand(armSubsystem));
+      return new DriveAutonScoreCommand2(driveSubsystem)
+      .alongWith(new ArmAutonCommand(armSubsystem), new ClawAutonCommand(clawSubsystem));
     }
     else
     {
