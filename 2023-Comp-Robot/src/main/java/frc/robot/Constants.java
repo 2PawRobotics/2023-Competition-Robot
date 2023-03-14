@@ -18,7 +18,7 @@ public final class Constants {
   
   /* Speed Constants */
 
-  public static final double speedLimit = 0.75;
+  public static final double speedLimit = 1;
   public static final double turnSpeed = 0.45;
   public static final double turretSpeed = .3;
   public static final double lowArmSpeed = .75;
@@ -26,19 +26,22 @@ public final class Constants {
 
   /* Sendable Chooser */
   public static final String defaultAuto = "Default";
-  public static final String scoreDriveAuto = "1 Score and Drive";
-  public static final String balanceAuto = "Balance";
-  public static final String scoreDriveAuto2 = "2 Score and Balance";
+  public static final String scoreDriveAuto = "Right Score and Drive";
+  public static final String balanceAuto = "Score and Balance";
+  public static final String scoreDriveAuto2 = "Left Score and Balance";
 
   final static SendableChooser<String> sendChooser = new SendableChooser<>();
-
-  /* Limelight Stuff */
-  public static double distanceFromLimelightToGoalInches;
-  public static boolean havePlacedCone = false;
-
-  public static double goalHeightInches = 0;
 
   /* Other Booleans */
   public static boolean runningArms = false;
 
+
+  /* Changes */
+  /* Test Drive speed and slew rate for drive */
+  /* Test idle position for holding cone */
+  /* Test preset pickup position for the sides */
+  /* Test Upper and turret running at the same time */
+  /* Test Auton Scoring Changes */
+  /* Test Balance Command */
+  // High and low goal
 }

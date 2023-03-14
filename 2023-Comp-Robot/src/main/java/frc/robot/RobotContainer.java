@@ -8,10 +8,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.LEDCommand;
 import frc.robot.commands.ArmCommands.ArmAutonCommand;
 import frc.robot.commands.ArmCommands.ArmCommand;
-import frc.robot.commands.ArmCommands.CubeScoreCommand;
 import frc.robot.commands.ClawCommands.ClawAutonCommand;
 import frc.robot.commands.ClawCommands.ClawCommand;
 import frc.robot.commands.DriveCommands.*;
@@ -20,7 +18,6 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
 
 
 /**
@@ -35,7 +32,6 @@ public class RobotContainer {
   private final ClawSubsystem clawSubsystem = new ClawSubsystem();
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
-  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   //Drive Commands
@@ -46,14 +42,9 @@ public class RobotContainer {
 
   //Arm Commands
   private final ArmCommand armCommand = new ArmCommand(armSubsystem);
-  private final CubeScoreCommand cubeScoreCommand = new CubeScoreCommand(armSubsystem);
 
   //Turret Commands
   private final TurretCommand turretCommand = new TurretCommand(turretSubsystem);
-  private final LimelightCenterCommand limelightCenterCommand = new LimelightCenterCommand(turretSubsystem);
-
-  //LED Commands
-  private final LEDCommand ledCommand = new LEDCommand(ledSubsystem);
 
   //Gyro Commands
   private final BalanceCommand balanceCommand = new BalanceCommand(driveSubsystem);
@@ -62,27 +53,20 @@ public class RobotContainer {
   public static XboxController XCont = new XboxController(0);
   public static XboxController XCont2 = new XboxController(1);
 
-  public RobotContainer() {
-    
+  public RobotContainer() 
+  {
     CommandScheduler.getInstance().setDefaultCommand(driveSubsystem, driveCommand);
     CommandScheduler.getInstance().setDefaultCommand(armSubsystem, armCommand);
-    CommandScheduler.getInstance().setDefaultCommand(ledSubsystem, ledCommand);
     CommandScheduler.getInstance().setDefaultCommand(turretSubsystem, turretCommand);
     CommandScheduler.getInstance().setDefaultCommand(clawSubsystem, clawCommand);
 
     configureBindings();
   }
 
-  private void configureBindings() {
-
+  private void configureBindings()
+  {
     JoystickButton balanceButton = new JoystickButton(XCont, 3);
     balanceButton.whileTrue(balanceCommand);
-
-    JoystickButton limelightCenterButton = new JoystickButton(XCont2, 6);
-    limelightCenterButton.whileTrue(limelightCenterCommand);
-
-    JoystickButton cubeButton = new JoystickButton(XCont2, 11);
-    cubeButton.whileTrue(cubeScoreCommand);
   }
 
   /**
@@ -93,7 +77,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     String autoSelected = Constants.sendChooser.getSelected();
-    if (autoSelected == Constants.scoreDriveAuto){
+    if (autoSelected == Constants.scoreDriveAuto)
+    {
       return new ClawAutonCommand(clawSubsystem)
       .alongWith(new DriveAutonScoreCommand(driveSubsystem), new ArmAutonCommand(armSubsystem));
     }
