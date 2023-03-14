@@ -21,8 +21,6 @@ public class ArmSubsystem extends SubsystemBase {
     public static Encoder upEncoder = new Encoder(4, 5, true, Encoder.EncodingType.k2X);
     public static Encoder lowEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k2X);
 
-    //SlewRateLimiter turnFilter = new SlewRateLimiter(1);
-
     static double startDist = 18.3125;
     static double c = 8.45;
     static double cPow = Math.pow(c, 2);
@@ -71,9 +69,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     double goalHeight = 0;
     double goalDist = 0;
+    boolean runGoal = false;
     boolean lowGoal = false;
     boolean highGoal = false;
-    boolean runGoal = false;
 
     Timer armTimer = new Timer();
 
@@ -124,15 +122,11 @@ public class ArmSubsystem extends SubsystemBase {
         {
             goalHeight = 55;
             goalDist = 45;
-            highGoal = true;
-            lowGoal = false;
         }
         else if (dPadValue == 180)
         {
             goalHeight = 45;
             goalDist = 30;
-            highGoal = false;
-            lowGoal = true;
         }
 
         if (RobotContainer.XCont.getBButtonPressed())
@@ -163,6 +157,8 @@ public class ArmSubsystem extends SubsystemBase {
             Constants.runningArms = true;
             runIdle = false;
             runShelf = false;
+            runGoal = false;
+            runPickup = false;
         }
         else
         {
@@ -303,17 +299,39 @@ public class ArmSubsystem extends SubsystemBase {
         Extend1 = 40.62*Math.sin(O1);
         Extend2 = 39.25*Math.sin(O1+O2);        
         ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
-        if (ExtendedHeight < goalHeight)
+        if (ExtendedHeight < goalHeight && highGoal == false)
         {
             upMotor.set(-.65);
-            lowMotor.set(0);
+
         }
         else 
         {
             upMotor.set(0);
-            lowMotor.set(0);
+            highGoal = true;
         }
-    }
+        if (ExtendedLength < goalDist && lowGoal == false)
+        {
+            if (ExtendedHeight > goalHeight-10)
+            {
+                lowMotor.set(-1);
+            }
+            else
+            {
+                lowMotor.set(-.3);
+            }
+        }
+        else 
+        {
+            lowMotor.set(0);
+            lowGoal = true;
+        }
+        if (lowGoal == true && highGoal == true)
+        {
+            lowGoal = false;
+            highGoal = false;
+            runGoal = false;
+        }
+}
 
     public void IdlePosition()
     {

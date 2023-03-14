@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -17,6 +18,8 @@ public class ClawSubsystem extends SubsystemBase {
     private final static CANSparkMax clawMotor = new CANSparkMax(8, MotorType.kBrushed);
 
     public static Encoder clawEncoder = new Encoder(6, 7, false, Encoder.EncodingType.k2X);
+
+    private final DigitalInput clawLimit = new DigitalInput(10);
 
     boolean clawOpen = true;
     boolean clawRunCone = false;
@@ -39,8 +42,8 @@ public class ClawSubsystem extends SubsystemBase {
         clawMotor.set(0);
     }
 
-    public void ClawTeleop(){
-        
+    public void ClawTeleop()
+    {
         if (RobotContainer.XCont2.getYButtonPressed())
         {
             clawRunCube = true;
@@ -71,7 +74,7 @@ public class ClawSubsystem extends SubsystemBase {
                     System.out.println(clawMotor.getOutputCurrent());
                     if (clawMotor.getOutputCurrent() < 35)
                     {
-                        clawMotor.set(.4);
+                        clawMotor.set(.55);
                     }
                     else
                     {
@@ -89,19 +92,16 @@ public class ClawSubsystem extends SubsystemBase {
             }
             else if (clawOpen == false)
             {
-                if (clawDist > 4)
+                if (clawLimit.get() == false)
                 {
-                    clawMotor.set(-.25);
-                }
-                else if (clawDist > .3)
-                {
-                    clawMotor.set(-.25);
+                    clawMotor.set(-.55);
                 }
                 else
                 {
                     clawMotor.set(0);
                     clawOpen = true;
                     clawRunCone = false;
+                    clawEncoder.reset();
                 }
             }
             else
@@ -121,7 +121,7 @@ public class ClawSubsystem extends SubsystemBase {
                 if (clawDist < 2.6)
                 {
                     System.out.println(clawDist);
-                    clawMotor.set(.5);
+                    clawMotor.set(.55);
                 }
                 else
                 {
@@ -132,19 +132,16 @@ public class ClawSubsystem extends SubsystemBase {
             }
             else if (clawOpen == false)
             {
-                if (clawDist > 2)
+                if (clawLimit.get() == false)
                 {
-                    clawMotor.set(-.4);
-                }
-                else if (clawDist > .3)
-                {
-                    clawMotor.set(-.25);
+                    clawMotor.set(-.55);
                 }
                 else
                 {
                     clawMotor.set(0);
                     clawOpen = true;
                     clawRunCube = false;
+                    clawEncoder.reset();
                 }
             }
             else

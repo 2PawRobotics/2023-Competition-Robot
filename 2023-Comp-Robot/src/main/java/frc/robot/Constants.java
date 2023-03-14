@@ -43,5 +43,7 @@ public final class Constants {
   /* Test Upper and turret running at the same time */
   /* Test Auton Scoring Changes */
   /* Test Balance Command */
-  // High and low goal
+  /* Test High and low goal */
+  /* Test Not Touching ground */
+  /* Test Claw Limit Switch */
 }
