@@ -91,6 +91,11 @@ public class RobotContainer {
       return new DriveAutonScoreCommand2(driveSubsystem)
       .alongWith(new ArmAutonCommand(armSubsystem), new ClawAutonCommand(clawSubsystem));
     }
+    else if (autoSelected == Constants.balanceScoreAuto)
+    {
+      return new DriveAutonScoreBalanceCommand(driveSubsystem)
+      .alongWith(new ArmAutonCommand(armSubsystem), new ClawAutonCommand(clawSubsystem));
+    }
     else
     {
       return new DriveAutonCommand(driveSubsystem);

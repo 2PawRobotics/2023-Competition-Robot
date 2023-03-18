@@ -69,10 +69,9 @@ public class ClawSubsystem extends SubsystemBase {
         {
             if (clawOpen == true) 
             {
-                if (clawDist < 6.6)
+                if (clawDist < 6.35)
                 {
-                    System.out.println(clawMotor.getOutputCurrent());
-                    if (clawMotor.getOutputCurrent() < 35)
+                    if (clawMotor.getOutputCurrent() < 40)
                     {
                         clawMotor.set(.55);
                     }
@@ -81,6 +80,7 @@ public class ClawSubsystem extends SubsystemBase {
                         clawMotor.set(0);
                         clawOpen = false;
                         clawRunCone = false;
+                        System.out.println("Overdraw");
                     }
                 }
                 else
@@ -94,7 +94,7 @@ public class ClawSubsystem extends SubsystemBase {
             {
                 if (clawLimit.get() == false)
                 {
-                    clawMotor.set(-.55);
+                    clawMotor.set(-.20);
                 }
                 else
                 {
@@ -118,7 +118,7 @@ public class ClawSubsystem extends SubsystemBase {
         {
             if (clawOpen == true) 
             {
-                if (clawDist < 2.6)
+                if (clawDist < 2.375)
                 {
                     System.out.println(clawDist);
                     clawMotor.set(.55);
@@ -134,7 +134,7 @@ public class ClawSubsystem extends SubsystemBase {
             {
                 if (clawLimit.get() == false)
                 {
-                    clawMotor.set(-.55);
+                    clawMotor.set(-.2);
                 }
                 else
                 {
@@ -167,7 +167,7 @@ public class ClawSubsystem extends SubsystemBase {
             clawRunCube = true;
             ClawInteractCube();
         }
-        else if (clawOpen == false && clawTimer.get() >= 5)
+        else if (clawOpen == false && clawTimer.get() >= 4.5)
         {
             clawRunCube = true;
             ClawInteractCube();

@@ -21,10 +21,10 @@ public class ArmSubsystem extends SubsystemBase {
     public static Encoder upEncoder = new Encoder(4, 5, true, Encoder.EncodingType.k2X);
     public static Encoder lowEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k2X);
 
-    static double startDist = 18.3125;
-    static double c = 8.45;
+    static double startDist = 18.5;
+    static double c = 11.75;
     static double cPow = Math.pow(c, 2);
-    static double b = 18.1;
+    static double b = 18.13;
     static double bPow = Math.pow(b, 2);
     static double a;
     static double lowArmAngle;
@@ -94,8 +94,7 @@ public class ArmSubsystem extends SubsystemBase {
         a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
         lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
         lowArmAngle = lowArmRad*(180/Math.PI);
-
-        upEncoderRotations = (upEncoder.get()/1024)/10;
+        upEncoderRotations = (upEncoder.get()/1024)/9;
 
         upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
@@ -120,13 +119,13 @@ public class ArmSubsystem extends SubsystemBase {
         int dPadValue = RobotContainer.XCont2.getPOV();
         if (dPadValue == 0)
         {
-            goalHeight = 55;
-            goalDist = 45;
+            goalHeight = 75;
+            goalDist = 35;
         }
         else if (dPadValue == 180)
         {
-            goalHeight = 45;
-            goalDist = 30;
+            goalHeight = 56.5;
+            goalDist = 29;
         }
 
         if (RobotContainer.XCont.getBButtonPressed())
@@ -301,7 +300,7 @@ public class ArmSubsystem extends SubsystemBase {
         ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
         if (ExtendedHeight < goalHeight && highGoal == false)
         {
-            upMotor.set(-.65);
+            upMotor.set(-.85);
 
         }
         else 
@@ -311,13 +310,13 @@ public class ArmSubsystem extends SubsystemBase {
         }
         if (ExtendedLength < goalDist && lowGoal == false)
         {
-            if (ExtendedHeight > goalHeight-10)
+            if (ExtendedHeight > goalHeight-5)
             {
                 lowMotor.set(-1);
             }
             else
             {
-                lowMotor.set(-.3);
+                lowMotor.set(-.25);
             }
         }
         else 
@@ -338,7 +337,7 @@ public class ArmSubsystem extends SubsystemBase {
         upEncoderRotations = (upEncoder.get()/1024)/10;
         upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        if (lowEncoder.get() > 100 && lowIdle == false)
+        if (lowEncoder.get() > 95 && lowIdle == false)
         {
             lowMotor.set(1);
         }
@@ -347,15 +346,15 @@ public class ArmSubsystem extends SubsystemBase {
             lowMotor.set(0);
             lowIdle = true;
         }
-        if (upArmAngle > -130)
+        if (upArmAngle > -135)
         {
             upMotor.set(1);
         }
-        else if (upArmAngle > -140)
+        else if (upArmAngle > -145)
         {
             upMotor.set(0.5);
         }
-        else if (upArmAngle > -150)
+        else if (upArmAngle > -155)
         {
             upMotor.set(0.1);
         }
@@ -382,12 +381,12 @@ public class ArmSubsystem extends SubsystemBase {
 
         upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        if (lowArmAngle < 125 && lowPickup == false)
+        if (lowArmAngle < 113.5 && lowPickup == false)
         {
             lowMotor.set(-0.8);
             lowPickup = false;
         }
-        else if (lowArmAngle > 130 && lowPickup == false)
+        else if (lowArmAngle > 118.5 && lowPickup == false)
         {
             lowMotor.set(0.8);
             lowPickup = false;
@@ -397,12 +396,12 @@ public class ArmSubsystem extends SubsystemBase {
             lowMotor.set(0);
             lowPickup = true;
         }
-        if (upArmAngle < -100 && upPickup == false)
+        if (upArmAngle < -145 && upPickup == false)
         {
             upMotor.set(-0.75);
             upPickup = false;
         }
-        else if (upArmAngle > -95 && upPickup == false)
+        else if (upArmAngle > -140 && upPickup == false)
         {
             upMotor.set(0.75);
             upPickup = false;
@@ -467,7 +466,7 @@ public class ArmSubsystem extends SubsystemBase {
         lowEncoder.reset();
 
         goalHeight = 74;
-        goalDist = 45;
+        goalDist = 40;
 
         armTimer.reset();
         armTimer.start();
@@ -515,7 +514,7 @@ public class ArmSubsystem extends SubsystemBase {
                 lowMotor.set(0);
             }
         }
-        else if (armTimer.get() >= 3 && armTimer.get() < 5)
+        else if (armTimer.get() >= 3 && armTimer.get() < 4.5)
         {
             if (ExtendedLength < goalDist)
             {
@@ -528,7 +527,7 @@ public class ArmSubsystem extends SubsystemBase {
                 lowMotor.set(0);
             }
         }
-        if (armTimer.get() >= 6 && armTimer.get() < 15)
+        if (armTimer.get() >= 5.5 && armTimer.get() < 15)
         {
             if (runIdle == true)
             {
@@ -541,7 +540,7 @@ public class ArmSubsystem extends SubsystemBase {
                     lowMotor.set(0);
                     lowIdle = true;
                 }
-                if (armTimer.get() >= 7.5 && armTimer.get() < 15)
+                if (armTimer.get() >= 6.5 && armTimer.get() < 15)
                 {
                     if (upArmAngle > -145)
                     {
