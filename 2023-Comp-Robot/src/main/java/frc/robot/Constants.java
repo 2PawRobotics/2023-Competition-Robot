@@ -16,28 +16,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  */
 public final class Constants {
   
-  /* Driving Constants */
+  /* Speed Constants */
 
-  public static final double speedLimit = 0.85;
-
-  /* Testing Constants */
-
-  public static final double testSpeed = .5;
-
-  /* Encoder Parameters */
-
-  //Encoder counts per revelution
-  private static final double unitsPerRev = 360;
-  //Robot drive wheel diameter (Inches)
-  private static final double whd = 6;
-  //Encoder distance per pulse
-  public static final double encPulse = Math.PI*whd/unitsPerRev;
-  //Encoder prints
-  public static int printLoops = 0;
+  public static final double speedLimit = 1;
+  public static final double turnSpeed = 0.45;
+  public static final double turretSpeed = .35;
+  public static final double lowArmSpeed = 1;
+  public static final double upArmSpeed = 1;
 
   /* Sendable Chooser */
   public static final String defaultAuto = "Default";
-  public static final String customAuto = "My Auto";
+  public static final String scoreDriveAuto = "Right Score and Drive";
+  public static final String scoreDriveAuto2 = "Left Score and Drive";
+  public static final String balanceAuto = "Balance";
+  public static final String balanceScoreAuto = "Score and Balance";
+
+
   final static SendableChooser<String> sendChooser = new SendableChooser<>();
 
+  /* Other Booleans */
+  public static boolean runningArms = false;
+
+
+  /* Changes */
+  /* Test Drive speed and slew rate for drive */
+  /* Test idle position for holding cone */
+  /* Test preset pickup position for the sides */
+  /* Test Upper and turret running at the same time */
+  /* Test Auton Scoring Changes */
+  /* Test Balance Command */
+  /* Test High and low goal */
+  /* Test Not Touching ground */
+  /* Test Claw Limit Switch */
 }

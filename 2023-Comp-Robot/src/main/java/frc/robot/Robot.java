@@ -4,14 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -36,9 +33,13 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     Shuffleboard.getTab("Auton").add("Auton Path Test", Constants.sendChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    Constants.sendChooser.setDefaultOption("Default Auto", Constants.defaultAuto);
-    Constants.sendChooser.addOption("My Auto", Constants.customAuto);
+    Constants.sendChooser.setDefaultOption("Default", Constants.defaultAuto);
+    Constants.sendChooser.addOption("Right Score and Drive", Constants.scoreDriveAuto);
+    Constants.sendChooser.addOption("Balance", Constants.balanceAuto);
+    Constants.sendChooser.addOption("Score and Balance", Constants.balanceScoreAuto);
+    Constants.sendChooser.addOption("Left Score and Drive", Constants.scoreDriveAuto2);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("").setNumber(0);
+    CameraServer.startAutomaticCapture();
   }
 
   /**

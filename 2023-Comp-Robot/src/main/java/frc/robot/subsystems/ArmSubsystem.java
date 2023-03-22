@@ -4,187 +4,520 @@
 
 package frc.robot.subsystems;
 
-import javax.lang.model.util.ElementScanner14;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    private static WPI_TalonFX lowMotor = new WPI_TalonFX(6, "rio");
-    private final CANSparkMax upMotor  = new CANSparkMax(5, MotorType.kBrushed);
+    public final static CANSparkMax lowMotor  = new CANSparkMax(6, MotorType.kBrushed);
+    public final static CANSparkMax upMotor  = new CANSparkMax(7, MotorType.kBrushed);
 
-    public static Encoder upEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k2X);
+    public static Encoder upEncoder = new Encoder(4, 5, true, Encoder.EncodingType.k2X);
+    public static Encoder lowEncoder = new Encoder(2, 3, true, Encoder.EncodingType.k2X);
 
-    SlewRateLimiter turnFilter = new SlewRateLimiter(2);
+    static double startDist = 18.5;
+    static double c = 11.75;
+    static double cPow = Math.pow(c, 2);
+    static double b = 18.13;
+    static double bPow = Math.pow(b, 2);
+    static double a;
+    static double lowArmAngle;
+    static double lowArmRad;
 
-    double lowDistPerTic = 1/((2048*225)/360);
-    double upDistPerTic = 1/((1024*100)/360);
+    static double upEncoderRotations;
+    static double upArmAngle;
 
     boolean armStop;
     boolean lengthStop;
     boolean heightStop;
-    double lowMotorStop = 59.5;
+    boolean groundStop;
 
-    double O1;
-    double O2;
+    double lowMotorStop = 60;
 
-    double ExtendOne;
-    double ExtendTwo;
-    double PivotToEdge = 14;
-    double ExtendedLength;
+    static double O1;
+    static double O2;
 
-    double Extend1;
-    double Extend2;
-    double BottomToPivot = 8.95;
-    double ExtendedHeight;
+    static double ExtendOne;
+    static double ExtendTwo;
+    static double PivotToEdge = 14;
+    static double ExtendedLength;
 
-    public void ArmInit() {
+    static double Extend1;
+    static double Extend2;
+    static double BottomToPivot = 8.95;
+    static double ExtendedHeight;
 
-        lowMotor.set(ControlMode.PercentOutput, 0);
-        lowMotor.configFactoryDefault();
-        lowMotor.setNeutralMode(NeutralMode.Brake);
-        lowMotor.setInverted(true);
-        TalonFXConfiguration configs = new TalonFXConfiguration();
-			
-	    configs.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
-			
-	    lowMotor.configAllSettings(configs);
-        lowMotor.setSelectedSensorPosition(0);
+    boolean runIdle = false;
+    boolean lowIdle = false;
+    boolean upIdle = false;
 
-        upEncoder.setDistancePerPulse(Constants.encPulse);
+    boolean runShelf = false;
+    boolean lowShelf = false;
+    boolean upShelf = false;
 
+    boolean runPickup = false;
+    boolean lowPickup = false;
+    boolean upPickup = false;
+
+    boolean armBoolean = false;
+
+    double goalHeight = 0;
+    double goalDist = 0;
+    boolean runGoal = false;
+    boolean lowGoal = false;
+    boolean highGoal = false;
+
+    Timer armTimer = new Timer();
+
+    public void ArmInit() 
+    {
+        if (armBoolean == false)
+        {
+            upMotor.setInverted(false);
+            upEncoder.reset();
+
+            lowMotor.setInverted(true);
+            lowEncoder.reset();
+
+            goalHeight = 45;
+            goalDist = 30;
+        }
     }
-    public void ArmTeleop() {
+    public void ArmTeleop() 
+    {
+        System.out.println("Up Encoder: "+upEncoder.get());
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
+        upEncoderRotations = (upEncoder.get()/1024)/9;
 
-        O1 = lowMotor.getSelectedSensorPosition()*lowDistPerTic;
-        O2 = upEncoder.getDistance()*upDistPerTic;
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
 
-        ExtendOne = 40.62*Math.cos(O1);
-        ExtendTwo = 39.14*Math.cos(O1+O2);
-        double ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
+
+        ExtendOne = -(40.62*Math.cos(O1))+2;
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        if (ExtendTwo < 0)
+        {
+            ExtendedLength = ExtendOne - PivotToEdge;
+        }
+        else
+        {
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
+        }
 
         Extend1 = 40.62*Math.sin(O1);
-        Extend2 = 39.14*Math.sin(O2);
-        ExtendedHeight = Extend1 + Extend2 + BottomToPivot;
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
 
-        double rotateLow = RobotContainer.XCont2.getLeftY();
-        rotateLow = Deadzone(rotateLow);
-        rotateLow = turnFilter.calculate(rotateLow);
+        int dPadValue = RobotContainer.XCont2.getPOV();
+        if (dPadValue == 0)
+        {
+            goalHeight = 75;
+            goalDist = 30;
+        }
+        else if (dPadValue == 180)
+        {
+            goalHeight = 56.5;
+            goalDist = 29;
+        }
+        if (RobotContainer.XCont2.getAButtonPressed())
+        {
+            runShelf = true;
+        }
+        if (RobotContainer.XCont2.getBButtonPressed())
+        {
+            runPickup = true;
+        }
+        if (RobotContainer.XCont2.getRightBumper() == true)
+        {
+            runGoal = true;
+        }
+
         double rotateUp = RobotContainer.XCont2.getRightY();
-        rotateUp = Deadzone(rotateUp);
-        rotateUp = turnFilter.calculate(rotateUp);
+        rotateUp = Deadzone(rotateUp)*Constants.upArmSpeed;
+        
+        double rotateLow = RobotContainer.XCont2.getLeftY();
+        rotateLow = Deadzone(rotateLow)*Constants.lowArmSpeed;
+
+        if (Math.abs(rotateUp) > 0 || Math.abs(rotateLow) > 0)
+        {
+            Constants.runningArms = true; 
+            runShelf = false;
+            runGoal = false;
+            runPickup = false;
+        }
+        else
+        {
+            Constants.runningArms = false;
+        }
+
+        if (lowEncoder.get() < -1)
+        {
+            lowMotor.set(-0.25);
+        }
+        else
+        {
+            lowMotor.set(rotateLow);
+        }
+        if (upEncoder.get() < -1)
+        {
+            upMotor.set(-0.25);
+        }
+        else
+        {
+            upMotor.set(rotateUp);
+        }
 
         if (armStop == true)
         {
             ArmStop();
         }
-        else
+        else if (Constants.runningArms == false && runGoal == true)
         {
-            upMotor.set(rotateLow);
-            lowMotor.set(rotateUp);
+            GoalPosition();
         }
-        if (ExtendedLength >= 47.5)
+        else if (Constants.runningArms == false && runPickup == true)
+        {
+            PickupPosition();
+        }
+        else if (Constants.runningArms == false && runShelf == true)
+        {
+            ShelfPosition();
+        }
+        
+        if (ExtendedLength >= 46)
         {
             armStop = true;
             lengthStop = true;
+            heightStop = false;
+            groundStop = false;
         }
-        else if (ExtendedHeight >= 59.5)
+        else if (ExtendedHeight >= 76)
         {
             armStop = true;
             heightStop = true;
+            lengthStop = false;
+            groundStop = false;
         }
-        else if (O1 >= lowMotorStop)
+        else if (ExtendedHeight <= 3)
         {
-            lowMotor.set(-0.1);
-        }
-        else if (O1 <= -lowMotorStop)
-        {
-            lowMotor.set(0.1);
+            armStop = true;
+            heightStop = false;
+            lengthStop = false;
+            groundStop = true;
         }
         else
         {
             armStop = false;
             lengthStop = false;
             heightStop = false;
+            groundStop = false;
         }
 
     }
 
-    public void ArmStop(){
-
-        lowMotor.set(0);
+    public void ArmStop()
+    {
         if (armStop == true && lengthStop == true)
         {
-            lowMotor.set(-.01);
+            lowMotor.set(.35);
+            upMotor.set(0);
         }
         else if (armStop == true && heightStop == true)
         {
-            lowMotor.set(-.01);
-            upMotor.set(.01);
+            lowMotor.set(.25);
+            upMotor.set(.35);
+        }
+        else if (armStop == true && groundStop == true)
+        {
+            lowMotor.set(.35);
+            upMotor.set(0);
         }
         else
         {
-            lowMotor.set(0);
             armStop = false;
             lengthStop = false;
             heightStop = false;
         }
     }
 
-    public double Deadzone(double value){
-        /* Upper deadzone */
-        if (value >= +0.05){
-            value = value*Constants.armSpeed;
+    public double Deadzone(double value)
+    {
+        if (value >= +0.1)
+        {
             return value;
         }
-      /* Lower deadzone */
-        else if (value <= -0.05){
-            value = value*Constants.armSpeed;
+        else if (value <= -0.1)
+        {
             return value;
         }
-      /* Outside deadzone */
-        else{return 0;}
-      }
-
-    public void IdlePosition(){
-
-        if (O1>-1.5)
+        else
         {
-            lowMotor.set(-.01);
+            return 0;
         }
-        else if (O1<-2.5)
+    }
+
+    public void GoalPosition()
+    {
+        if (ExtendedHeight < goalHeight)
         {
-            lowMotor.set(.01);
+            upMotor.set(-.85);
+            highGoal = false;
+        }
+        else 
+        {
+            upMotor.set(0);
+            highGoal = true;
+        }
+        if (ExtendedLength < goalDist)
+        {
+            lowGoal = false;
+            if (ExtendedHeight > goalHeight-5)
+            {
+                lowMotor.set(-1);
+            }
+            else
+            {
+                lowMotor.set(-.25);
+            }
+        }
+        else 
+        {
+            lowMotor.set(0);
+            lowGoal = true;
+        }
+        if (lowGoal == true && highGoal == true)
+        {
+            lowGoal = false;
+            highGoal = false;
+            runGoal = false;
+        }
+}
+
+    public void IdlePosition()
+    {
+        if (lowEncoder.get() > 95 && lowIdle == false)
+        {
+            lowMotor.set(1);
         }
         else
         {
             lowMotor.set(0);
+            lowIdle = true;
         }
-        if (O2>178.5)
+        if (upArmAngle > -135)
         {
-            lowMotor.set(-.01);
+            upMotor.set(1);
         }
-        else if (O2<177.5)
+        else if (upArmAngle > -145)
         {
-            lowMotor.set(.01);
+            upMotor.set(0.5);
+        }
+        else if (upArmAngle > -155)
+        {
+            upMotor.set(0.1);
+        }
+        else 
+        {
+            upMotor.set(0);
+            upIdle = true;
+        }
+        if (lowIdle == true && upIdle == true)
+        {
+            lowIdle = false;
+            upIdle = false;
+            runIdle = false;
+        }
+    }
+
+    public void PickupPosition()
+    {
+        if (lowArmAngle < 113.5)
+        {
+            lowMotor.set(-0.8);
+            lowPickup = false;
+        }
+        else if (lowArmAngle > 118.5)
+        {
+            lowMotor.set(0.8);
+            lowPickup = false;
         }
         else
         {
             lowMotor.set(0);
+            lowPickup = true;
+        }
+        if (upArmAngle < -145)
+        {
+            upMotor.set(-0.75);
+            upPickup = false;
+        }
+        else if (upArmAngle > -140)
+        {
+            upMotor.set(0.75);
+            upPickup = false;
+        }
+        else
+        {
+            upMotor.set(0);
+            upPickup = true;
+        }
+        if (lowPickup == true && upPickup == true)
+        {
+            lowPickup = false;
+            upPickup = false;
+            runPickup = false;
+        }
+    }
+
+    public void ShelfPosition()
+    {
+        if (lowArmAngle < 90)
+        {
+            lowMotor.set(-0.8);
+            lowShelf = false;
+        }
+        else
+        {
+            lowMotor.set(0);
+            lowShelf = true;
+        }
+        if (ExtendedHeight < 55)
+        {
+            upMotor.set(-0.75);
+            upShelf = false;
+        }
+        else
+        {
+            upMotor.set(0);
+            upShelf = true;
+        }
+        if (lowShelf == true && upShelf == true)
+        {
+            lowShelf = false;
+            upShelf = false;
+            runShelf = false;
+        }
+    }
+
+    public void ArmAutonInit()
+    {
+        upMotor.setInverted(false);
+        upEncoder.reset();
+
+        lowMotor.setInverted(true);
+        lowEncoder.reset();
+
+        goalHeight = 74;
+        goalDist = 40;
+
+        armTimer.reset();
+        armTimer.start();
+
+        runIdle = true;
+    }
+
+    public void ArmAuton()
+    {
+        a = ((lowEncoder.get()/(1024*9))*.197)+startDist;
+        lowArmRad = Math.acos((Math.pow(a, 2) - bPow - cPow)/(-2*b*c));
+        lowArmAngle = lowArmRad*(180/Math.PI);
+
+        upEncoderRotations = (upEncoder.get()/1024)/10;
+
+        upArmAngle = (upEncoderRotations*((1/(7*Math.PI/360))*.197))-168;
+
+        O1 = Math.PI*lowArmAngle/180;
+        O2 = Math.PI*((180-upArmAngle)/180);
+
+        ExtendOne = -(40.62*Math.cos(O1))+2;
+        ExtendTwo = 39.25*Math.cos(O1+O2);
+        if (ExtendTwo < 0)
+        {
+            ExtendedLength = ExtendOne - PivotToEdge;
+        }
+        else
+        {
+            ExtendedLength = ExtendOne + ExtendTwo - PivotToEdge;
         }
 
+        Extend1 = 40.62*Math.sin(O1);
+        Extend2 = 39.25*Math.sin(O1+O2);        
+        ExtendedHeight = Extend1 - Extend2 + BottomToPivot;
+        if (armTimer.get() > 1 && armTimer.get() < 3)
+        {
+            if (ExtendedHeight < goalHeight)
+            {
+                upMotor.set(-.65);
+                lowMotor.set(0);
+            }
+            else 
+            {
+                upMotor.set(0);
+                lowMotor.set(0);
+            }
+        }
+        else if (armTimer.get() >= 3 && armTimer.get() < 4.5)
+        {
+            if (ExtendedLength < goalDist)
+            {
+                upMotor.set(0);
+                lowMotor.set(-.8);
+            }
+            else 
+            {
+                upMotor.set(0);
+                lowMotor.set(0);
+            }
+        }
+        if (armTimer.get() >= 5.5 && armTimer.get() < 15)
+        {
+            if (runIdle == true)
+            {
+                if (lowEncoder.get() > 100 && lowIdle == false)
+                {
+                    lowMotor.set(1);
+                }
+                else
+                {
+                    lowMotor.set(0);
+                    lowIdle = true;
+                }
+                if (armTimer.get() >= 6.5 && armTimer.get() < 15)
+                {
+                    if (upArmAngle > -145)
+                    {
+                        upMotor.set(1);
+                    }
+                    else if (upArmAngle > -155)
+                    {
+                        upMotor.set(0.5);
+                    }
+                    else if (upArmAngle > -165)
+                    {
+                        upMotor.set(0.1);
+                    }
+                    else 
+                    {
+                        upMotor.set(0);
+                        upIdle = true;
+                    }
+                }
+                if (lowIdle == true && upIdle == true)
+                {
+                    lowIdle = false;
+                    upIdle = false;
+                    runIdle = false;
+                }
+            }
+        }
     }
 }

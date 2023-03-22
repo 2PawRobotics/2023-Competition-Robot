@@ -2,18 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ClawCommands;
+package frc.robot.commands.ArmCommands;
 
-import frc.robot.subsystems.ClawSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ClawCommand extends CommandBase {
+public class ArmAutonCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ClawSubsystem clawSubsystem;
+  private final ArmSubsystem armSubsystem;
 
-  public ClawCommand(ClawSubsystem subsystem) {
-    clawSubsystem = subsystem;
+  public ArmAutonCommand(ArmSubsystem subsystem) {
+    armSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -22,7 +22,7 @@ public class ClawCommand extends CommandBase {
   @Override
   public void initialize() {
 
-    clawSubsystem.ClawInit();
+    armSubsystem.ArmAutonInit();
 
   }
 
@@ -30,7 +30,7 @@ public class ClawCommand extends CommandBase {
   @Override
   public void execute() {
 
-    clawSubsystem.ClawTeleop();
+    armSubsystem.ArmAuton();
   
   }
 
@@ -44,4 +44,3 @@ public class ClawCommand extends CommandBase {
     return false;
   }
 }
-
