@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import javax.lang.model.util.ElementScanner14;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -59,11 +57,21 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void DriveTeleop() 
   {
-    double forward = RobotContainer.XCont.getLeftY();
+    double forward;
     double turn = RobotContainer.XCont.getRightX()*Constants.turnSpeed;
-    forward = Deadzone(forward);
+    if (RobotContainer.XCont.getLeftTriggerAxis() >= .5)
+    {
+      forward = RobotContainer.XCont.getLeftY();
+      forward = forward*.2;
+      forward = Deadzone(forward);
+    }
+    else
+    {
+      forward = RobotContainer.XCont.getLeftY();
+      forward = Deadzone(forward);
+      forward = driveFilter.calculate(forward);
+    }
     turn = Deadzone(turn);
-    forward = driveFilter.calculate(forward);
     
     leftFront.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
     leftBack.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);

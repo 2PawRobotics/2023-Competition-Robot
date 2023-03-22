@@ -71,17 +71,7 @@ public class ClawSubsystem extends SubsystemBase {
             {
                 if (clawDist < 6.35)
                 {
-                    if (clawMotor.getOutputCurrent() < 40)
-                    {
-                        clawMotor.set(.55);
-                    }
-                    else
-                    {
-                        clawMotor.set(0);
-                        clawOpen = false;
-                        clawRunCone = false;
-                        System.out.println("Overdraw");
-                    }
+                    clawMotor.set(.55);
                 }
                 else
                 {
